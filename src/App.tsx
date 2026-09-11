@@ -21,6 +21,7 @@ import { WorkflowNode } from "./components/WorkflowNode";
 import { DnDProvider, useDnD } from "./dnd-context";
 import { Sidebar } from "./components/Sidebar";
 import { getKind, type FieldSpec } from "./workflow/kinds";
+import { layoutWithDagre } from "./workflow/layout";
 import type { WorkflowFlowNode, WorkflowNodeData } from "./workflow/types";
 
 const NODE_TYPES = { workflowNode: WorkflowNode } satisfies NodeTypes;
@@ -80,8 +81,13 @@ function Flow() {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const [paletteOpen, setPaletteOpen] = useState(false);
-  const { screenToFlowPosition } = useReactFlow();
+  const { screenToFlowPosition, fitView } = useReactFlow();
   const [dndKindId] = useDnD();
+
+  const onAutoLayout = useCallback(() => {
+    setNodes((currentNodes) => layoutWithDagre(currentNodes, edges));
+    window.requestAnimationFrame(() => fitView());
+  }, [edges, fitView, setNodes]);
 
   const styledEdges = useMemo(() => {
     const whenByNodeId = new Map(nodes.map((node) => [node.id, node.data.when]));
@@ -149,6 +155,12 @@ function Flow() {
         ☰ Nodes
       </button>
       <Sidebar open={paletteOpen} onClose={() => setPaletteOpen(false)} />
+      <button
+        className="absolute top-2 right-2 z-[5] cursor-pointer rounded border border-[#ddd] bg-white px-2.5 py-1.5"
+        onClick={onAutoLayout}
+      >
+        Auto-layout
+      </button>
       <div className="min-w-0 flex-1" ref={wrapperRef}>
         <ReactFlow
           nodes={nodes}
