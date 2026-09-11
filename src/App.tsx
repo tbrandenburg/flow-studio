@@ -18,10 +18,12 @@ import {
 import "@xyflow/react/dist/style.css";
 
 import { WorkflowNode } from "./components/WorkflowNode";
+import { NodeInspector } from "./components/NodeInspector";
 import { DnDProvider, useDnD } from "./dnd-context";
 import { Sidebar } from "./components/Sidebar";
 import { getKind, type FieldSpec } from "./workflow/kinds";
 import { layoutWithDagre } from "./workflow/layout";
+import { useNodeSelection } from "./hooks/useNodeSelection";
 import type { WorkflowFlowNode, WorkflowNodeData } from "./workflow/types";
 
 const NODE_TYPES = { workflowNode: WorkflowNode } satisfies NodeTypes;
@@ -83,6 +85,11 @@ function Flow() {
   const [paletteOpen, setPaletteOpen] = useState(false);
   const { screenToFlowPosition, fitView } = useReactFlow();
   const [dndKindId] = useDnD();
+
+  const { selectedNode, onNodeClick, onPaneClick, onFieldChange } = useNodeSelection(
+    nodes,
+    setNodes,
+  );
 
   const onAutoLayout = useCallback(() => {
     setNodes((currentNodes) => layoutWithDagre(currentNodes, edges));
@@ -170,6 +177,8 @@ function Flow() {
           onEdgesChange={onEdgesChange}
           onConnect={onConnect}
           onEdgeDoubleClick={onEdgeDoubleClick}
+          onNodeClick={onNodeClick}
+          onPaneClick={onPaneClick}
           onDrop={onDrop}
           onDragOver={onDragOver}
           deleteKeyCode={["Backspace", "Delete"]}
@@ -180,6 +189,9 @@ function Flow() {
           <Controls />
         </ReactFlow>
       </div>
+      {selectedNode ? (
+        <NodeInspector node={selectedNode} onFieldChange={onFieldChange} />
+      ) : null}
     </div>
   );
 }
