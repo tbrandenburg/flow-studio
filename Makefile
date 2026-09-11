@@ -1,6 +1,6 @@
 .DEFAULT_GOAL := build
 
-.PHONY: install lint build run
+.PHONY: install lint format test build run
 
 install: node_modules/.package-lock.json
 
@@ -9,6 +9,12 @@ node_modules/.package-lock.json: package.json package-lock.json
 
 lint: install
 	npm run lint
+
+format: install
+	npm run format
+
+test: install
+	npm run test
 
 build: lint
 	npm run build
