@@ -89,4 +89,19 @@ describe("PositionLoggerNode", () => {
     expect(screen.getByRole("textbox")).toBeInTheDocument();
     expect(textarea.value).toBe("line1\nline2");
   });
+
+  it("preserves line breaks in the committed multiline label", async () => {
+    const { container } = renderFlow("old");
+    await waitFor(() => expect(container.querySelector(".react-flow__node")).not.toBeNull());
+
+    fireEvent.doubleClick(screen.getByText("old"));
+    const textarea = await screen.findByRole("textbox");
+    fireEvent.change(textarea, { target: { value: "line one\nline two\nline three" } });
+    fireEvent.keyDown(textarea, { key: "Enter" });
+
+    const rendered = container.querySelector(".node-label") as HTMLElement;
+    expect(rendered).not.toBeNull();
+    expect(rendered.textContent).toBe("line one\nline two\nline three");
+    expect(rendered).toHaveClass("node-label");
+  });
 });

@@ -30,7 +30,7 @@ export function EditableLabel({ label, editable }: EditableLabelProps) {
 
   return (
     label && (
-      <div onDoubleClick={startEditing} title="Double-click to edit">
+      <div className="node-label" onDoubleClick={startEditing} title="Double-click to edit">
         {label}
       </div>
     )

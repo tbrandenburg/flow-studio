@@ -10,6 +10,11 @@
   min-width: 0;
 }
 
+.node-label {
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
 .node-label-editor {
   box-sizing: border-box;
   display: block;
