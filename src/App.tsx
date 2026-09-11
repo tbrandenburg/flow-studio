@@ -10,7 +10,9 @@ import {
   useNodesState,
   useReactFlow,
   type Edge,
+  type EdgeChange,
   type EdgeMouseHandler,
+  type NodeChange,
   type NodeMouseHandler,
   type NodeTypes,
   type OnConnect,
@@ -28,6 +30,8 @@ import { layoutWithDagre } from "./workflow/layout";
 import { createFlowNode } from "./workflow/createNode";
 import { isDoubleClick, type ClickPoint } from "./workflow/doubleClick";
 import { useNodeSelection } from "./hooks/useNodeSelection";
+import { useBuilderUndo } from "./hooks/useBuilderUndo";
+import { useBuilderKeyboard, type BuilderActions } from "./hooks/useBuilderKeyboard";
 import type { WorkflowFlowNode } from "./workflow/types";
 
 const NODE_TYPES = { workflowNode: WorkflowNode } satisfies NodeTypes;
@@ -67,17 +71,77 @@ interface ContextMenuState {
 
 function Flow() {
   const wrapperRef = useRef<HTMLDivElement>(null);
-  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+  const [nodes, setNodes, onNodesChangeBase] = useNodesState(initialNodes);
+  const [edges, setEdges, onEdgesChangeBase] = useEdgesState(initialEdges);
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [quickAdd, setQuickAdd] = useState<QuickAddState | null>(null);
   const [contextMenu, setContextMenu] = useState<ContextMenuState | null>(null);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const lastPaneClickRef = useRef<ClickPoint | null>(null);
+  const isDraggingRef = useRef(false);
   const { screenToFlowPosition, fitView } = useReactFlow();
   const [dndKindId] = useDnD();
+  const { pushSnapshot, undo, redo, canUndo, canRedo } = useBuilderUndo();
 
   const { selectedNode, onNodeClick, onPaneClick: onSelectionPaneClick, onFieldChange } =
     useNodeSelection(nodes, setNodes);
+
+  const markDirty = useCallback(() => setHasUnsavedChanges(true), []);
+
+  const restoreSnapshot = useCallback(
+    (snapshot: { nodes: WorkflowFlowNode[]; edges: Edge[] } | null) => {
+      if (!snapshot) return;
+      setNodes(snapshot.nodes);
+      setEdges(snapshot.edges);
+    },
+    [setEdges, setNodes],
+  );
+
+  const onUndo = useCallback(() => {
+    restoreSnapshot(undo(nodes, edges));
+  }, [edges, nodes, restoreSnapshot, undo]);
+
+  const onRedo = useCallback(() => {
+    restoreSnapshot(redo(nodes, edges));
+  }, [edges, nodes, redo, restoreSnapshot]);
+
+  // Only non-"select" changes count as dirty and, for node position changes,
+  // only the leading edge of a drag gesture (dragging: true) pushes an undo
+  // snapshot; intermediate move events during the same drag must not each
+  // produce their own step. "dimensions" changes without `resizing: true`
+  // are React Flow's own initial-measurement events (fired once per node on
+  // mount) and must not be treated as user edits.
+  const onNodesChange = useCallback(
+    (changes: NodeChange<WorkflowFlowNode>[]) => {
+      for (const change of changes) {
+        if (change.type === "select") continue;
+        if (change.type === "dimensions" && !change.resizing) continue;
+        if (change.type === "position") {
+          if (change.dragging && !isDraggingRef.current) {
+            isDraggingRef.current = true;
+            pushSnapshot(nodes, edges);
+          }
+          if (change.dragging === false) {
+            isDraggingRef.current = false;
+          }
+        }
+        markDirty();
+      }
+      onNodesChangeBase(changes);
+    },
+    [edges, markDirty, nodes, onNodesChangeBase, pushSnapshot],
+  );
+
+  const onEdgesChange = useCallback(
+    (changes: EdgeChange[]) => {
+      for (const change of changes) {
+        if (change.type === "select") continue;
+        markDirty();
+      }
+      onEdgesChangeBase(changes);
+    },
+    [markDirty, onEdgesChangeBase],
+  );
 
   const onAutoLayout = useCallback(() => {
     setNodes((currentNodes) => layoutWithDagre(currentNodes, edges));
@@ -139,26 +203,31 @@ function Flow() {
   const onQuickAddPick = useCallback(
     (kindId: string) => {
       if (!quickAdd) return;
+      pushSnapshot(nodes, edges);
       const newNode = createFlowNode(kindId, quickAdd.flowPosition);
       setNodes((currentNodes) => currentNodes.concat(newNode));
+      markDirty();
       setQuickAdd(null);
     },
-    [quickAdd, setNodes],
+    [edges, markDirty, nodes, pushSnapshot, quickAdd, setNodes],
   );
 
   const onDeleteNode = useCallback(() => {
     if (!contextMenu) return;
     const { nodeId } = contextMenu;
+    pushSnapshot(nodes, edges);
     setNodes((currentNodes) => currentNodes.filter((node) => node.id !== nodeId));
     setEdges((currentEdges) =>
       currentEdges.filter((edge) => edge.source !== nodeId && edge.target !== nodeId),
     );
+    markDirty();
     setContextMenu(null);
-  }, [contextMenu, setEdges, setNodes]);
+  }, [contextMenu, edges, markDirty, nodes, pushSnapshot, setEdges, setNodes]);
 
   const onDuplicateNode = useCallback(() => {
     if (!contextMenu) return;
     const { nodeId } = contextMenu;
+    pushSnapshot(nodes, edges);
     setNodes((currentNodes) => {
       const source = currentNodes.find((node) => node.id === nodeId);
       if (!source) return currentNodes;
@@ -172,8 +241,71 @@ function Flow() {
       };
       return currentNodes.concat(duplicate);
     });
+    markDirty();
     setContextMenu(null);
-  }, [contextMenu, setNodes]);
+  }, [contextMenu, edges, markDirty, nodes, pushSnapshot, setNodes]);
+
+  const duplicateSelected = useCallback(() => {
+    const selectedIds = nodes.filter((node) => node.selected).map((node) => node.id);
+    if (selectedIds.length === 0) return;
+    pushSnapshot(nodes, edges);
+    setNodes((currentNodes) => {
+      const additions = currentNodes
+        .filter((node) => selectedIds.includes(node.id))
+        .map((source): WorkflowFlowNode => {
+          const id = `node-${crypto.randomUUID()}`;
+          return {
+            ...source,
+            id,
+            selected: false,
+            position: { x: source.position.x + 40, y: source.position.y + 40 },
+            data: { ...structuredClone(source.data), id },
+          };
+        });
+      return currentNodes.concat(additions);
+    });
+    markDirty();
+  }, [edges, markDirty, nodes, pushSnapshot, setNodes]);
+
+  const deleteSelected = useCallback(() => {
+    const selectedNodeIds = new Set(nodes.filter((node) => node.selected).map((node) => node.id));
+    const selectedEdgeIds = new Set(edges.filter((edge) => edge.selected).map((edge) => edge.id));
+    if (selectedNodeIds.size === 0 && selectedEdgeIds.size === 0) return;
+    pushSnapshot(nodes, edges);
+    setNodes((currentNodes) => currentNodes.filter((node) => !selectedNodeIds.has(node.id)));
+    setEdges((currentEdges) =>
+      currentEdges.filter(
+        (edge) =>
+          !selectedEdgeIds.has(edge.id) &&
+          !selectedNodeIds.has(edge.source) &&
+          !selectedNodeIds.has(edge.target),
+      ),
+    );
+    markDirty();
+  }, [edges, markDirty, nodes, pushSnapshot, setEdges, setNodes]);
+
+  const selectAll = useCallback(() => {
+    setNodes((currentNodes) => currentNodes.map((node) => ({ ...node, selected: true })));
+    setEdges((currentEdges) => currentEdges.map((edge) => ({ ...edge, selected: true })));
+  }, [setEdges, setNodes]);
+
+  const noop = useCallback(() => {}, []);
+
+  const builderActions: BuilderActions = useMemo(
+    () => ({
+      undo: onUndo,
+      redo: onRedo,
+      duplicateSelected,
+      fitView: () => fitView(),
+      selectAll,
+      deleteSelected,
+      save: noop,
+    }),
+    [deleteSelected, duplicateSelected, fitView, noop, onRedo, onUndo, selectAll],
+  );
+
+  useBuilderKeyboard(builderActions, true);
+
 
   const onDragOver = useCallback((event: React.DragEvent) => {
     event.preventDefault();
@@ -189,10 +321,12 @@ function Flow() {
       const position = screenToFlowPosition({ x: event.clientX, y: event.clientY });
       const newNode = createFlowNode(kindId, position);
 
+      pushSnapshot(nodes, edges);
       setNodes((currentNodes) => currentNodes.concat(newNode));
+      markDirty();
       setPaletteOpen(false);
     },
-    [dndKindId, screenToFlowPosition, setNodes],
+    [dndKindId, edges, markDirty, nodes, pushSnapshot, screenToFlowPosition, setNodes],
   );
 
   return (
@@ -205,12 +339,35 @@ function Flow() {
         ☰ Nodes
       </button>
       <Sidebar open={paletteOpen} onClose={() => setPaletteOpen(false)} />
-      <button
-        className="absolute top-2 right-2 z-[5] cursor-pointer rounded border border-[#ddd] bg-white px-2.5 py-1.5"
-        onClick={onAutoLayout}
-      >
-        Auto-layout
-      </button>
+      <div className="absolute top-2 right-2 z-[5] flex items-center gap-2">
+        {hasUnsavedChanges ? (
+          <span className="rounded border border-[#ddd] bg-white px-2.5 py-1.5 text-sm text-[#666]">
+            ● Unsaved changes
+          </span>
+        ) : null}
+        <button
+          className="cursor-pointer rounded border border-[#ddd] bg-white px-2.5 py-1.5 disabled:cursor-not-allowed disabled:opacity-50"
+          onClick={onUndo}
+          disabled={!canUndo}
+          aria-label="Undo"
+        >
+          Undo
+        </button>
+        <button
+          className="cursor-pointer rounded border border-[#ddd] bg-white px-2.5 py-1.5 disabled:cursor-not-allowed disabled:opacity-50"
+          onClick={onRedo}
+          disabled={!canRedo}
+          aria-label="Redo"
+        >
+          Redo
+        </button>
+        <button
+          className="cursor-pointer rounded border border-[#ddd] bg-white px-2.5 py-1.5"
+          onClick={onAutoLayout}
+        >
+          Auto-layout
+        </button>
+      </div>
       <div className="min-w-0 flex-1" ref={wrapperRef}>
         <ReactFlow
           nodes={nodes}
@@ -225,7 +382,7 @@ function Flow() {
           onNodeContextMenu={onNodeContextMenu}
           onDrop={onDrop}
           onDragOver={onDragOver}
-          deleteKeyCode={["Backspace", "Delete"]}
+          deleteKeyCode={null}
           fitView
         >
           <Background />
