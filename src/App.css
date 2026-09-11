@@ -9,3 +9,13 @@
   flex: 1;
   min-width: 0;
 }
+
+.node-label-editor {
+  width: 100%;
+  min-width: 6rem;
+  resize: none;
+  font: inherit;
+  padding: 2px 4px;
+  border: 1px solid var(--xy-node-border, #1a192b);
+  border-radius: 2px;
+}
