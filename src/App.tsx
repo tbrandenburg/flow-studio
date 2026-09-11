@@ -9,6 +9,8 @@ import {
   useEdgesState,
   useNodesState,
   useReactFlow,
+  type Edge,
+  type EdgeMouseHandler,
   type OnConnect,
 } from "@xyflow/react";
 
@@ -34,6 +36,19 @@ function Flow() {
 
   const onConnect: OnConnect = useCallback(
     (connection) => setEdges((currentEdges) => addEdge(connection, currentEdges)),
+    [setEdges],
+  );
+
+  const onEdgeDoubleClick: EdgeMouseHandler = useCallback(
+    (_event, edge) => {
+      setEdges((currentEdges) =>
+        currentEdges.map((currentEdge): Edge =>
+          currentEdge.id === edge.id
+            ? { ...currentEdge, animated: !currentEdge.animated }
+            : currentEdge,
+        ),
+      );
+    },
     [setEdges],
   );
 
@@ -80,6 +95,7 @@ function Flow() {
           edgeTypes={edgeTypes}
           onEdgesChange={onEdgesChange}
           onConnect={onConnect}
+          onEdgeDoubleClick={onEdgeDoubleClick}
           onDrop={onDrop}
           onDragOver={onDragOver}
           fitView

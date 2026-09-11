@@ -12,13 +12,14 @@ the implementation is based on.
 
 ## Commands
 
-| Target         | Description                                           |
-| -------------- | ----------------------------------------------------- |
-| `make install` | Install locked dependencies                           |
-| `make lint`    | Install dependencies if needed, lint                  |
-| `make format`  | Install dependencies if needed, format                |
-| `make test`    | Install dependencies if needed, run unit tests        |
-| `make build`   | Install, lint, and build for production               |
-| `make run`     | Install dependencies if needed, start Vite dev server |
+| Target                                  | Description                                                            |
+| --------------------------------------- | ---------------------------------------------------------------------- |
+| `make install`                          | Install locked dependencies                                            |
+| `make lint`                             | Install dependencies if needed, lint                                   |
+| `make format`                           | Install dependencies if needed, format                                 |
+| `make test`                             | Install dependencies if needed, run unit tests                         |
+| `make build`                            | Install, lint, and build for production                                |
+| `make run`                              | Install dependencies if needed, start Vite dev server                  |
+| `make release BUMP=patch\|minor\|major` | Test, build, `npm version` bump, then tag + push + `gh release create` |
 
 The default Make target is `build`.
