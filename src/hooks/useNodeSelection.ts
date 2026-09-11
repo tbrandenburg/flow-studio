@@ -11,9 +11,7 @@ export interface UseNodeSelectionResult {
 
 export function useNodeSelection(
   nodes: WorkflowFlowNode[],
-  setNodes: (
-    updater: (currentNodes: WorkflowFlowNode[]) => WorkflowFlowNode[],
-  ) => void,
+  setNodes: (updater: (currentNodes: WorkflowFlowNode[]) => WorkflowFlowNode[]) => void,
 ): UseNodeSelectionResult {
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
 

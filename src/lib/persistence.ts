@@ -7,7 +7,10 @@ export const DEFAULT_STORAGE_KEY = "flow-studio:workflow";
  * Serializes the definition to YAML (the same format used for export) and
  * writes it to localStorage, so autosave and file export stay consistent.
  */
-export function saveToLocalStorage(def: WorkflowDefinition, key: string = DEFAULT_STORAGE_KEY): void {
+export function saveToLocalStorage(
+  def: WorkflowDefinition,
+  key: string = DEFAULT_STORAGE_KEY,
+): void {
   window.localStorage.setItem(key, toYaml(def));
 }
 

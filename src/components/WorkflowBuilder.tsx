@@ -1,10 +1,4 @@
-import {
-  Background,
-  Controls,
-  MiniMap,
-  ReactFlow,
-  type NodeTypes,
-} from "@xyflow/react";
+import { Background, Controls, MiniMap, ReactFlow, type NodeTypes } from "@xyflow/react";
 
 import "@xyflow/react/dist/style.css";
 
@@ -136,9 +130,7 @@ export function WorkflowBuilder() {
         {yamlViewMode === "split" ? <YamlCodeView mode={yamlViewMode} yaml={yamlText} /> : null}
       </div>
       {yamlViewMode === "full" ? <YamlCodeView mode={yamlViewMode} yaml={yamlText} /> : null}
-      {selectedNode ? (
-        <NodeInspector node={selectedNode} onFieldChange={onFieldChange} />
-      ) : null}
+      {selectedNode ? <NodeInspector node={selectedNode} onFieldChange={onFieldChange} /> : null}
       <ValidationPanel issues={validationIssues} onIssueClick={onValidationIssueClick} />
       {quickAdd ? (
         <QuickAddPicker

@@ -145,7 +145,16 @@ export function useWorkflowMutations({
       markDirty();
       setPaletteOpen(false);
     },
-    [dndKindId, edges, markDirty, nodes, pushSnapshot, screenToFlowPosition, setNodes, setPaletteOpen],
+    [
+      dndKindId,
+      edges,
+      markDirty,
+      nodes,
+      pushSnapshot,
+      screenToFlowPosition,
+      setNodes,
+      setPaletteOpen,
+    ],
   );
 
   return {

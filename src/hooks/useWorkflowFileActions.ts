@@ -50,7 +50,14 @@ export function useWorkflowFileActions({
     setImportError(null);
     clearLocalStorage();
     setHasUnsavedChanges(false);
-  }, [setEdges, setHasUnsavedChanges, setImportError, setNodes, setWorkflowDescription, setWorkflowName]);
+  }, [
+    setEdges,
+    setHasUnsavedChanges,
+    setImportError,
+    setNodes,
+    setWorkflowDescription,
+    setWorkflowName,
+  ]);
 
   const onExport = useCallback(() => {
     downloadYaml(yamlText, workflowName || DEFAULT_WORKFLOW_NAME);

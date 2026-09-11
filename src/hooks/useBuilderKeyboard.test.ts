@@ -15,7 +15,12 @@ function makeActions(): BuilderActions {
 
 function keyEvent(
   key: string,
-  init: Partial<{ ctrlKey: boolean; metaKey: boolean; shiftKey: boolean; target: EventTarget }> = {},
+  init: Partial<{
+    ctrlKey: boolean;
+    metaKey: boolean;
+    shiftKey: boolean;
+    target: EventTarget;
+  }> = {},
 ): KeyboardEvent {
   const target = init.target ?? document.createElement("div");
   return {

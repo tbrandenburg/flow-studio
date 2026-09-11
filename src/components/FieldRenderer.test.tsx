@@ -25,7 +25,13 @@ describe("FieldRenderer", () => {
   });
 
   it("renders a number input respecting min/max and calls onChange with a number", () => {
-    const field: FieldSpec = { name: "timeout", label: "Timeout", type: "number", min: 0, max: 100 };
+    const field: FieldSpec = {
+      name: "timeout",
+      label: "Timeout",
+      type: "number",
+      min: 0,
+      max: 100,
+    };
     const onChange = vi.fn();
     render(<FieldRenderer field={field} value={5} onChange={onChange} />);
     const input = screen.getByDisplayValue("5") as HTMLInputElement;

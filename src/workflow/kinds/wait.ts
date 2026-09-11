@@ -23,7 +23,9 @@ export const waitKind: NodeKind = {
     { name: "value", label: "Value", type: "text" },
   ],
   preview: (data) =>
-    typeof data.wait_type === "string" ? `${data.wait_type}${data.value ? `: ${data.value}` : ""}` : "wait",
+    typeof data.wait_type === "string"
+      ? `${data.wait_type}${data.value ? `: ${data.value}` : ""}`
+      : "wait",
   toYaml: (data) => {
     const waitType = data.wait_type as (typeof WAIT_TYPES)[number] | undefined;
     if (!waitType) return { wait: {} };

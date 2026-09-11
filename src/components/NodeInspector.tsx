@@ -58,10 +58,7 @@ export function NodeInspector({ node, onFieldChange }: NodeInspectorProps) {
           className={inputClass}
           value={data.trigger_rule ?? ""}
           onChange={(event) =>
-            setField(
-              "trigger_rule",
-              event.target.value === "" ? undefined : event.target.value,
-            )
+            setField("trigger_rule", event.target.value === "" ? undefined : event.target.value)
           }
         >
           <option value="">-</option>

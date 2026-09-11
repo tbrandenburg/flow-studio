@@ -53,7 +53,9 @@ export function ValidationPanel({ issues, onIssueClick }: ValidationPanelProps) 
               onClick={() => onIssueClick(issue)}
               disabled={issue.nodeId === undefined}
             >
-              <span className={SEVERITY_COLOR[issue.severity]}>{SEVERITY_ICON[issue.severity]}</span>
+              <span className={SEVERITY_COLOR[issue.severity]}>
+                {SEVERITY_ICON[issue.severity]}
+              </span>
               <span>{issue.message}</span>
             </button>
           </li>

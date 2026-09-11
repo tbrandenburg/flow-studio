@@ -12,7 +12,12 @@ const initialNodes: WorkflowFlowNode[] = [
     id: "node-seed-prompt",
     type: "workflowNode",
     position: { x: 0, y: 0 },
-    data: { id: "node-seed-prompt", kind: "prompt", label: "Ask agent", prompt: "Summarize the repo" },
+    data: {
+      id: "node-seed-prompt",
+      kind: "prompt",
+      label: "Ask agent",
+      prompt: "Summarize the repo",
+    },
   },
   {
     id: "node-seed-bash",
@@ -28,7 +33,9 @@ const initialNodes: WorkflowFlowNode[] = [
   },
 ];
 
-const initialEdges: Edge[] = [{ id: "node-seed-prompt->node-seed-bash", source: "node-seed-prompt", target: "node-seed-bash" }];
+const initialEdges: Edge[] = [
+  { id: "node-seed-prompt->node-seed-bash", source: "node-seed-prompt", target: "node-seed-bash" },
+];
 
 export interface RestoredState {
   nodes: WorkflowFlowNode[];
@@ -46,7 +53,12 @@ export interface RestoredState {
 export function restoreInitialState(): RestoredState {
   const def = loadFromLocalStorage();
   if (!def) {
-    return { nodes: initialNodes, edges: initialEdges, name: DEFAULT_WORKFLOW_NAME, description: "" };
+    return {
+      nodes: initialNodes,
+      edges: initialEdges,
+      name: DEFAULT_WORKFLOW_NAME,
+      description: "",
+    };
   }
   const { nodes, edges } = definitionToGraph(def);
   return {

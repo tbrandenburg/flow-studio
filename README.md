@@ -24,16 +24,16 @@ TypeScript, and Oxlint.
 
 ## Keyboard shortcuts
 
-| Shortcut                | Action                         |
-| ------------------------ | ------------------------------ |
-| `Ctrl`/`Cmd` + `Z`        | Undo                           |
-| `Ctrl`/`Cmd` + `Shift` + `Z` | Redo                        |
-| `Ctrl`/`Cmd` + `D`        | Duplicate selected node(s)     |
-| `Ctrl`/`Cmd` + `0`        | Fit view                       |
-| `Ctrl`/`Cmd` + `A`        | Select all nodes/edges         |
-| `Ctrl`/`Cmd` + `S`        | No-op (suppresses browser save dialog) |
-| `Delete` / `Backspace`   | Delete selected node(s)/edge(s) |
-| `f`                      | Fit view                       |
+| Shortcut                     | Action                                 |
+| ---------------------------- | -------------------------------------- |
+| `Ctrl`/`Cmd` + `Z`           | Undo                                   |
+| `Ctrl`/`Cmd` + `Shift` + `Z` | Redo                                   |
+| `Ctrl`/`Cmd` + `D`           | Duplicate selected node(s)             |
+| `Ctrl`/`Cmd` + `0`           | Fit view                               |
+| `Ctrl`/`Cmd` + `A`           | Select all nodes/edges                 |
+| `Ctrl`/`Cmd` + `S`           | No-op (suppresses browser save dialog) |
+| `Delete` / `Backspace`       | Delete selected node(s)/edge(s)        |
+| `f`                          | Fit view                               |
 
 Bare single-letter shortcuts (`f`) and `Delete`/`Backspace` are suppressed
 while an input/textarea/select element has focus, so typing into the node

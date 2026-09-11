@@ -1,6 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import type { Edge } from "@xyflow/react";
-import { computeGraphIssues, computeInstantIssues, type ValidationIssue } from "../workflow/validate";
+import {
+  computeGraphIssues,
+  computeInstantIssues,
+  type ValidationIssue,
+} from "../workflow/validate";
 import type { WorkflowFlowNode } from "../workflow/types";
 
 const DEBOUNCE_MS = 300;

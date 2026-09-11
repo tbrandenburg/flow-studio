@@ -1,5 +1,10 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { clearLocalStorage, DEFAULT_STORAGE_KEY, loadFromLocalStorage, saveToLocalStorage } from "./persistence";
+import {
+  clearLocalStorage,
+  DEFAULT_STORAGE_KEY,
+  loadFromLocalStorage,
+  saveToLocalStorage,
+} from "./persistence";
 import type { WorkflowDefinition } from "../workflow/schema";
 
 function fixtureDefinition(): WorkflowDefinition {

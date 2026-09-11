@@ -11,7 +11,8 @@ function fixtureDefinition(): WorkflowDefinition {
     nodes: [
       {
         id: "node-a1b2c3d4",
-        prompt: "Read the failing job log and summarise the root cause\nin at most three sentences.",
+        prompt:
+          "Read the failing job log and summarise the root cause\nin at most three sentences.",
         model: "claude-sonnet-4",
         output_format: "json",
       },

@@ -1,10 +1,5 @@
 import { useCallback, useMemo, useState } from "react";
-import {
-  useEdgesState,
-  useNodesState,
-  useReactFlow,
-  type Edge,
-} from "@xyflow/react";
+import { useEdgesState, useNodesState, useReactFlow, type Edge } from "@xyflow/react";
 
 import { useDnD } from "../dnd-context";
 import { layoutWithDagre } from "../workflow/layout";
@@ -43,8 +38,12 @@ export function useWorkflowState() {
   const [dndKindId] = useDnD();
   const { pushSnapshot, undo, redo, canUndo, canRedo } = useBuilderUndo();
 
-  const { selectedNode, onNodeClick, onPaneClick: onSelectionPaneClick, onFieldChange } =
-    useNodeSelection(nodes, setNodes);
+  const {
+    selectedNode,
+    onNodeClick,
+    onPaneClick: onSelectionPaneClick,
+    onFieldChange,
+  } = useNodeSelection(nodes, setNodes);
 
   const validationIssues = useBuilderValidation(nodes, edges);
 
@@ -163,7 +162,15 @@ export function useWorkflowState() {
       deleteSelected: mutations.deleteSelected,
       save: noop,
     }),
-    [fitView, mutations.deleteSelected, mutations.duplicateSelected, mutations.selectAll, noop, onRedo, onUndo],
+    [
+      fitView,
+      mutations.deleteSelected,
+      mutations.duplicateSelected,
+      mutations.selectAll,
+      noop,
+      onRedo,
+      onUndo,
+    ],
   );
 
   useBuilderKeyboard(builderActions, true);
