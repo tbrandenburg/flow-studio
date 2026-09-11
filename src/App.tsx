@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useRef, useState } from "react";
 import {
   addEdge,
   Background,
@@ -10,56 +10,56 @@ import {
   useNodesState,
   useReactFlow,
   type OnConnect,
-} from '@xyflow/react'
+} from "@xyflow/react";
 
-import '@xyflow/react/dist/style.css'
-import './App.css'
+import "@xyflow/react/dist/style.css";
+import "./App.css";
 
-import { initialEdges, edgeTypes } from './edges'
-import { initialNodes, nodeTypes } from './nodes'
-import type { AppNode } from './nodes/types'
-import { DnDProvider, useDnD } from './dnd-context'
-import { Sidebar } from './components/Sidebar'
+import { initialEdges, edgeTypes } from "./edges";
+import { initialNodes, nodeTypes } from "./nodes";
+import type { AppNode } from "./nodes/types";
+import { DnDProvider, useDnD } from "./dnd-context";
+import { Sidebar } from "./components/Sidebar";
 
-let nodeId = 0
-const getNodeId = () => `dnd-node_${nodeId++}`
+let nodeId = 0;
+const getNodeId = () => `dnd-node_${nodeId++}`;
 
 function Flow() {
-  const wrapperRef = useRef<HTMLDivElement>(null)
-  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes)
-  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges)
-  const [paletteOpen, setPaletteOpen] = useState(false)
-  const { screenToFlowPosition } = useReactFlow()
-  const [dndType] = useDnD()
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
+  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+  const [paletteOpen, setPaletteOpen] = useState(false);
+  const { screenToFlowPosition } = useReactFlow();
+  const [dndType] = useDnD();
 
   const onConnect: OnConnect = useCallback(
     (connection) => setEdges((currentEdges) => addEdge(connection, currentEdges)),
     [setEdges],
-  )
+  );
 
   const onDragOver = useCallback((event: React.DragEvent) => {
-    event.preventDefault()
-    event.dataTransfer.dropEffect = 'move'
-  }, [])
+    event.preventDefault();
+    event.dataTransfer.dropEffect = "move";
+  }, []);
 
   const onDrop = useCallback(
     (event: React.DragEvent) => {
-      event.preventDefault()
-      if (!dndType) return
+      event.preventDefault();
+      if (!dndType) return;
 
-      const position = screenToFlowPosition({ x: event.clientX, y: event.clientY })
+      const position = screenToFlowPosition({ x: event.clientX, y: event.clientY });
       const newNode: AppNode = {
         id: getNodeId(),
-        type: dndType === 'default' ? undefined : dndType,
+        type: dndType === "default" ? undefined : dndType,
         position,
         data: { label: `${dndType} node` },
-      } as AppNode
+      } as AppNode;
 
-      setNodes((currentNodes) => currentNodes.concat(newNode))
-      setPaletteOpen(false)
+      setNodes((currentNodes) => currentNodes.concat(newNode));
+      setPaletteOpen(false);
     },
     [dndType, screenToFlowPosition, setNodes],
-  )
+  );
 
   return (
     <div className="app-layout">
@@ -90,7 +90,7 @@ function Flow() {
         </ReactFlow>
       </div>
     </div>
-  )
+  );
 }
 
 function App() {
@@ -100,7 +100,7 @@ function App() {
         <Flow />
       </DnDProvider>
     </ReactFlowProvider>
-  )
+  );
 }
 
-export default App
+export default App;
