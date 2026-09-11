@@ -1,12 +1,6 @@
 import { cn } from "../lib/utils";
 import { useDnD } from "../dnd-context";
-
-const PALETTE = [
-  { type: "input", label: "Input node" },
-  { type: "default", label: "Default node" },
-  { type: "output", label: "Output node" },
-  { type: "position-logger", label: "Position logger" },
-];
+import { NODE_KINDS } from "../workflow/kinds";
 
 interface SidebarProps {
   open: boolean;
@@ -14,11 +8,11 @@ interface SidebarProps {
 }
 
 export function Sidebar({ open, onClose }: SidebarProps) {
-  const [, setType] = useDnD();
+  const [, setKindId] = useDnD();
 
-  const onDragStart = (event: React.DragEvent<HTMLDivElement>, nodeType: string) => {
-    setType(nodeType);
-    event.dataTransfer.setData("text/plain", nodeType);
+  const onDragStart = (event: React.DragEvent<HTMLDivElement>, kindId: string) => {
+    setKindId(kindId);
+    event.dataTransfer.setData("application/reactflow", kindId);
     event.dataTransfer.effectAllowed = "move";
   };
 
@@ -42,14 +36,20 @@ export function Sidebar({ open, onClose }: SidebarProps) {
         </button>
       </div>
       <div className="mb-3 text-xs text-[#666]">Drag a node onto the canvas.</div>
-      {PALETTE.map((item) => (
+      {NODE_KINDS.map((kind) => (
         <div
-          key={item.type}
+          key={kind.id}
           className="mb-2 cursor-grab rounded border border-[#ddd] bg-white px-2.5 py-2 text-[13px] active:cursor-grabbing"
           draggable
-          onDragStart={(event) => onDragStart(event, item.type)}
+          onDragStart={(event) => onDragStart(event, kind.id)}
         >
-          {item.label}
+          <div
+            className="mb-1 inline-block rounded px-1.5 py-0.5 text-[10px] font-semibold tracking-wide text-white"
+            style={{ backgroundColor: `var(${kind.accentVar})` }}
+          >
+            {kind.badge}
+          </div>
+          <div className="text-[#666]">{kind.description}</div>
         </div>
       ))}
     </aside>
