@@ -98,6 +98,7 @@ function Flow() {
           onEdgeDoubleClick={onEdgeDoubleClick}
           onDrop={onDrop}
           onDragOver={onDragOver}
+          deleteKeyCode={["Backspace", "Delete"]}
           fitView
         >
           <Background />
