@@ -109,9 +109,11 @@ export function useWorkflowState() {
   });
 
   const onAutoLayout = useCallback(() => {
+    pushSnapshot(nodes, edges);
     setNodes((currentNodes) => layoutWithDagre(currentNodes, edges));
+    markDirty();
     window.requestAnimationFrame(() => fitView());
-  }, [edges, fitView, setNodes]);
+  }, [edges, fitView, markDirty, nodes, pushSnapshot, setNodes]);
 
   const workflowMeta = useMemo(
     () => ({ name: workflowName, description: workflowDescription || undefined }),
