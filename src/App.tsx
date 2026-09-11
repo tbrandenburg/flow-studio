@@ -32,6 +32,9 @@ import { isDoubleClick, type ClickPoint } from "./workflow/doubleClick";
 import { useNodeSelection } from "./hooks/useNodeSelection";
 import { useBuilderUndo } from "./hooks/useBuilderUndo";
 import { useBuilderKeyboard, type BuilderActions } from "./hooks/useBuilderKeyboard";
+import { useBuilderValidation } from "./hooks/useBuilderValidation";
+import { ValidationPanel } from "./components/ValidationPanel";
+import type { ValidationIssue } from "./workflow/validate";
 import type { WorkflowFlowNode } from "./workflow/types";
 
 const NODE_TYPES = { workflowNode: WorkflowNode } satisfies NodeTypes;
@@ -85,6 +88,37 @@ function Flow() {
 
   const { selectedNode, onNodeClick, onPaneClick: onSelectionPaneClick, onFieldChange } =
     useNodeSelection(nodes, setNodes);
+
+  const validationIssues = useBuilderValidation(nodes, edges);
+
+  const errorNodeIds = useMemo(() => {
+    const ids = new Set<string>();
+    for (const issue of validationIssues) {
+      if (issue.severity === "error" && issue.nodeId) ids.add(issue.nodeId);
+    }
+    return ids;
+  }, [validationIssues]);
+
+  const styledNodes = useMemo(
+    () =>
+      nodes.map((node) =>
+        errorNodeIds.has(node.id)
+          ? { ...node, className: "workflow-node-error" }
+          : { ...node, className: undefined },
+      ),
+    [nodes, errorNodeIds],
+  );
+
+  const onValidationIssueClick = useCallback(
+    (issue: ValidationIssue) => {
+      if (!issue.nodeId) return;
+      const node = nodes.find((candidate) => candidate.id === issue.nodeId);
+      if (!node) return;
+      onNodeClick({} as React.MouseEvent, node);
+      void fitView({ nodes: [{ id: node.id }], duration: 300 });
+    },
+    [fitView, nodes, onNodeClick],
+  );
 
   const markDirty = useCallback(() => setHasUnsavedChanges(true), []);
 
@@ -370,7 +404,7 @@ function Flow() {
       </div>
       <div className="min-w-0 flex-1" ref={wrapperRef}>
         <ReactFlow
-          nodes={nodes}
+          nodes={styledNodes}
           nodeTypes={NODE_TYPES}
           onNodesChange={onNodesChange}
           edges={styledEdges}
@@ -393,6 +427,7 @@ function Flow() {
       {selectedNode ? (
         <NodeInspector node={selectedNode} onFieldChange={onFieldChange} />
       ) : null}
+      <ValidationPanel issues={validationIssues} onIssueClick={onValidationIssueClick} />
       {quickAdd ? (
         <QuickAddPicker
           position={quickAdd.screenPosition}
