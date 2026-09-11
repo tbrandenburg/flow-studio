@@ -23,3 +23,17 @@ the implementation is based on.
 | `make release BUMP=patch\|minor\|major` | Test, build, `npm version` bump, then tag + push + `gh release create` |
 
 The default Make target is `build`.
+
+## Conventions
+
+- Tailwind CSS v4 is the styling layer (utility classes on JSX elements; no
+  CSS modules/styled-components).
+- `src/workflow/` is the domain layer: node kinds (`src/workflow/kinds/`),
+  schema, serialization, YAML round-trip, graph/layout. Kind-specific
+  branching (`=== 'bash'`, etc.) must stay inside `src/workflow/kinds/` and
+  go through the kind registry (`getKind`) everywhere else.
+- `src/hooks/` holds one concern per hook (state, mutations, file actions,
+  autosave, dirty-tracking, canvas interactions) rather than one large hook
+  per component; components stay thin and only render from a hook's return
+  value.
+- 200 LOC soft limit per file.

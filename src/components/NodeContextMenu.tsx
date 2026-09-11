@@ -1,4 +1,5 @@
 import { useRef } from "react";
+import { Copy, Trash2 } from "lucide-react";
 import { usePopupDismissal } from "../hooks/usePopupDismissal";
 
 export interface NodeContextMenuProps {
@@ -37,16 +38,18 @@ export function NodeContextMenu({
     >
       <button
         role="menuitem"
-        className="block w-full cursor-pointer rounded px-2 py-1.5 text-left text-[13px] hover:bg-[#f2f2f2]"
+        className="flex w-full cursor-pointer items-center gap-1.5 rounded px-2 py-1.5 text-left text-[13px] hover:bg-[#f2f2f2]"
         onClick={onDuplicate}
       >
+        <Copy size={14} />
         Duplicate
       </button>
       <button
         role="menuitem"
-        className="block w-full cursor-pointer rounded px-2 py-1.5 text-left text-[13px] text-red-600 hover:bg-[#f2f2f2]"
+        className="flex w-full cursor-pointer items-center gap-1.5 rounded px-2 py-1.5 text-left text-[13px] text-red-600 hover:bg-[#f2f2f2]"
         onClick={onDelete}
       >
+        <Trash2 size={14} />
         Delete
       </button>
     </div>
