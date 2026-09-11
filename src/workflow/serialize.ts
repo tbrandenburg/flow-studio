@@ -63,33 +63,72 @@ function resolveKindData(raw: WorkflowNode): WorkflowNodeData {
   throw new Error(`Unable to resolve node kind for node: ${raw.id}`);
 }
 
+/**
+ * Resolves duplicate node ids in a raw definition's `nodes` array by
+ * remapping every occurrence after the first to a unique id (numeric
+ * suffix). The first occurrence of any id keeps it unchanged, so
+ * `depends_on` references made elsewhere in the YAML continue to resolve to
+ * that first occurrence, which is the least-surprising interpretation of an
+ * otherwise-ambiguous reference. Returns the final id for each node index
+ * (parallel to `def.nodes`).
+ */
+function remapDuplicateIds(nodes: readonly WorkflowNode[]): string[] {
+  const seen = new Set<string>();
+  const finalIds: string[] = [];
+
+  for (const raw of nodes) {
+    if (!seen.has(raw.id)) {
+      seen.add(raw.id);
+      finalIds.push(raw.id);
+      continue;
+    }
+    let suffix = 2;
+    let candidate = `${raw.id}-${suffix}`;
+    while (seen.has(candidate)) {
+      suffix += 1;
+      candidate = `${raw.id}-${suffix}`;
+    }
+    seen.add(candidate);
+    finalIds.push(candidate);
+  }
+
+  return finalIds;
+}
+
 export function definitionToGraph(def: WorkflowDefinition): {
   nodes: WorkflowFlowNode[];
   edges: Edge[];
 } {
-  const nodes: WorkflowFlowNode[] = def.nodes.map((raw) => {
+  const finalIds = remapDuplicateIds(def.nodes);
+
+  const nodes: WorkflowFlowNode[] = def.nodes.map((raw, index) => {
+    const id = finalIds[index];
     const kindData = resolveKindData(raw);
     const data: WorkflowNodeData = {
       ...kindData,
-      id: raw.id,
+      id,
       ...(raw.when !== undefined ? { when: raw.when } : {}),
       ...(raw.trigger_rule !== undefined ? { trigger_rule: raw.trigger_rule } : {}),
     };
     return {
-      id: raw.id,
+      id,
       type: "workflowNode",
       position: { x: 0, y: 0 },
       data,
     };
   });
 
-  const edges: Edge[] = def.nodes.flatMap((raw) =>
-    (raw.depends_on ?? []).map((source) => ({
-      id: `${source}->${raw.id}`,
+  // A `depends_on` reference to a duplicated original id is ambiguous; it is
+  // resolved to the first occurrence of that id, which is the node that kept
+  // the original (unremapped) id.
+  const edges: Edge[] = def.nodes.flatMap((raw, index) => {
+    const target = finalIds[index];
+    return (raw.depends_on ?? []).map((source) => ({
+      id: `${source}->${target}`,
       source,
-      target: raw.id,
-    })),
-  );
+      target,
+    }));
+  });
 
   return { nodes, edges };
 }
