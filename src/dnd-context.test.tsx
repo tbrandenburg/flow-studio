@@ -4,23 +4,23 @@ import { describe, expect, it } from "vitest";
 import { DnDProvider, useDnD } from "./dnd-context";
 
 describe("useDnD", () => {
-  it("defaults to null when no type has been set", () => {
+  it("defaults to null when no kind id has been set", () => {
     const { result } = renderHook(() => useDnD(), { wrapper: DnDProvider });
 
-    const [type] = result.current;
+    const [kindId] = result.current;
 
-    expect(type).toBeNull();
+    expect(kindId).toBeNull();
   });
 
-  it("shares the dragged node type between provider consumers", () => {
+  it("shares the dragged node kind id between provider consumers", () => {
     const { result } = renderHook(() => useDnD(), { wrapper: DnDProvider });
 
     act(() => {
-      const [, setType] = result.current;
-      setType("position-logger");
+      const [, setKindId] = result.current;
+      setKindId("bash");
     });
 
-    const [type] = result.current;
-    expect(type).toBe("position-logger");
+    const [kindId] = result.current;
+    expect(kindId).toBe("bash");
   });
 });
