@@ -79,4 +79,50 @@ describe("serialize", () => {
     const result = graphToDefinition(nodes, edges, { name: def.name });
     expect(result.nodes[0].label).toBeUndefined();
   });
+
+  it("remaps a duplicate node id so both nodes render with distinct ids", () => {
+    const def: WorkflowDefinition = {
+      name: "internal-collision",
+      nodes: [
+        { id: "node-dup", prompt: "first" },
+        { id: "node-dup", bash: "echo second" },
+      ],
+    };
+    const { nodes } = definitionToGraph(def);
+    expect(nodes).toHaveLength(2);
+    const ids = nodes.map((node) => node.id);
+    expect(new Set(ids).size).toBe(2);
+    expect(ids[0]).toBe("node-dup");
+    expect(ids[1]).toBe("node-dup-2");
+    expect(nodes[0].data.kind).toBe("prompt");
+    expect(nodes[1].data.kind).toBe("bash");
+  });
+
+  it("remaps repeated duplicates to the next free numeric suffix", () => {
+    const def: WorkflowDefinition = {
+      name: "triple-collision",
+      nodes: [
+        { id: "node-dup", prompt: "first" },
+        { id: "node-dup-2", prompt: "already taken" },
+        { id: "node-dup", bash: "echo second" },
+      ],
+    };
+    const { nodes } = definitionToGraph(def);
+    const ids = nodes.map((node) => node.id);
+    expect(ids).toEqual(["node-dup", "node-dup-2", "node-dup-3"]);
+  });
+
+  it("resolves depends_on referencing a duplicated id to the first occurrence", () => {
+    const def: WorkflowDefinition = {
+      name: "ambiguous-edge",
+      nodes: [
+        { id: "node-dup", prompt: "first" },
+        { id: "node-dup", bash: "echo second" },
+        { id: "node-c", command: "next", depends_on: ["node-dup"] },
+      ],
+    };
+    const { edges } = definitionToGraph(def);
+    const edgeIntoC = edges.find((edge) => edge.target === "node-c");
+    expect(edgeIntoC?.source).toBe("node-dup");
+  });
 });
