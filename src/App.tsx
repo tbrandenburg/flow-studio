@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   addEdge,
   Background,
@@ -34,6 +34,12 @@ import { useBuilderUndo } from "./hooks/useBuilderUndo";
 import { useBuilderKeyboard, type BuilderActions } from "./hooks/useBuilderKeyboard";
 import { useBuilderValidation } from "./hooks/useBuilderValidation";
 import { ValidationPanel } from "./components/ValidationPanel";
+import { BuilderToolbar } from "./components/BuilderToolbar";
+import { YamlCodeView, type YamlViewMode } from "./components/YamlCodeView";
+import { loadFromLocalStorage, saveToLocalStorage, clearLocalStorage } from "./lib/persistence";
+import { downloadYaml, parseWorkflowYaml, workflowToYamlText } from "./lib/workflowFile";
+import { WorkflowYamlError } from "./workflow/yaml";
+import { definitionToGraph, graphToDefinition } from "./workflow/serialize";
 import type { ValidationIssue } from "./workflow/validate";
 import type { WorkflowFlowNode } from "./workflow/types";
 
@@ -62,6 +68,36 @@ const initialNodes: WorkflowFlowNode[] = [
 
 const initialEdges: Edge[] = [{ id: "node-seed-prompt->node-seed-bash", source: "node-seed-prompt", target: "node-seed-bash" }];
 
+const DEFAULT_WORKFLOW_NAME = "untitled-workflow";
+const AUTOSAVE_DEBOUNCE_MS = 300;
+
+interface RestoredState {
+  nodes: WorkflowFlowNode[];
+  edges: Edge[];
+  name: string;
+  description: string;
+}
+
+/**
+ * Attempts to restore the last-saved workflow from localStorage, laying it
+ * out with Dagre once before first paint (definitionToGraph zeroes
+ * positions). Falls back to the hardcoded seed graph when nothing valid is
+ * stored.
+ */
+function restoreInitialState(): RestoredState {
+  const def = loadFromLocalStorage();
+  if (!def) {
+    return { nodes: initialNodes, edges: initialEdges, name: DEFAULT_WORKFLOW_NAME, description: "" };
+  }
+  const { nodes, edges } = definitionToGraph(def);
+  return {
+    nodes: layoutWithDagre(nodes, edges),
+    edges,
+    name: def.name,
+    description: def.description ?? "",
+  };
+}
+
 interface QuickAddState {
   screenPosition: { x: number; y: number };
   flowPosition: { x: number; y: number };
@@ -74,8 +110,13 @@ interface ContextMenuState {
 
 function Flow() {
   const wrapperRef = useRef<HTMLDivElement>(null);
-  const [nodes, setNodes, onNodesChangeBase] = useNodesState(initialNodes);
-  const [edges, setEdges, onEdgesChangeBase] = useEdgesState(initialEdges);
+  const [restored] = useState<RestoredState>(() => restoreInitialState());
+  const [nodes, setNodes, onNodesChangeBase] = useNodesState(restored.nodes);
+  const [edges, setEdges, onEdgesChangeBase] = useEdgesState(restored.edges);
+  const [workflowName, setWorkflowName] = useState(restored.name);
+  const [workflowDescription, setWorkflowDescription] = useState(restored.description);
+  const [yamlViewMode, setYamlViewMode] = useState<YamlViewMode>("hidden");
+  const [importError, setImportError] = useState<string | null>(null);
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [quickAdd, setQuickAdd] = useState<QuickAddState | null>(null);
   const [contextMenu, setContextMenu] = useState<ContextMenuState | null>(null);
@@ -181,6 +222,60 @@ function Flow() {
     setNodes((currentNodes) => layoutWithDagre(currentNodes, edges));
     window.requestAnimationFrame(() => fitView());
   }, [edges, fitView, setNodes]);
+
+  const workflowMeta = useMemo(
+    () => ({ name: workflowName, description: workflowDescription || undefined }),
+    [workflowName, workflowDescription],
+  );
+
+  const yamlText = useMemo(
+    () => workflowToYamlText(nodes, edges, workflowMeta),
+    [nodes, edges, workflowMeta],
+  );
+
+  // Debounced autosave: persist the current graph as YAML on every change so
+  // a reload restores the last-known state.
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      saveToLocalStorage(graphToDefinition(nodes, edges, workflowMeta));
+    }, AUTOSAVE_DEBOUNCE_MS);
+    return () => window.clearTimeout(timer);
+  }, [nodes, edges, workflowMeta]);
+
+  const onNew = useCallback(() => {
+    setNodes([]);
+    setEdges([]);
+    setWorkflowName(DEFAULT_WORKFLOW_NAME);
+    setWorkflowDescription("");
+    setImportError(null);
+    clearLocalStorage();
+    setHasUnsavedChanges(false);
+  }, [setEdges, setNodes]);
+
+  const onExport = useCallback(() => {
+    downloadYaml(yamlText, workflowName || DEFAULT_WORKFLOW_NAME);
+  }, [yamlText, workflowName]);
+
+  const onImportFile = useCallback(
+    (file: File) => {
+      void file.text().then((text) => {
+        try {
+          const imported = parseWorkflowYaml(text);
+          setNodes(imported.nodes);
+          setEdges(imported.edges);
+          setWorkflowName(imported.name);
+          setWorkflowDescription(imported.description);
+          setImportError(null);
+          markDirty();
+        } catch (cause) {
+          setImportError(
+            cause instanceof WorkflowYamlError ? cause.message : "Failed to import workflow file.",
+          );
+        }
+      });
+    },
+    [markDirty, setEdges, setNodes],
+  );
 
   const styledEdges = useMemo(() => {
     const whenByNodeId = new Map(nodes.map((node) => [node.id, node.data.when]));
@@ -373,57 +468,66 @@ function Flow() {
         ☰ Nodes
       </button>
       <Sidebar open={paletteOpen} onClose={() => setPaletteOpen(false)} />
-      <div className="absolute top-2 right-2 z-[5] flex items-center gap-2">
-        {hasUnsavedChanges ? (
-          <span className="rounded border border-[#ddd] bg-white px-2.5 py-1.5 text-sm text-[#666]">
-            ● Unsaved changes
-          </span>
-        ) : null}
-        <button
-          className="cursor-pointer rounded border border-[#ddd] bg-white px-2.5 py-1.5 disabled:cursor-not-allowed disabled:opacity-50"
-          onClick={onUndo}
-          disabled={!canUndo}
-          aria-label="Undo"
-        >
-          Undo
-        </button>
-        <button
-          className="cursor-pointer rounded border border-[#ddd] bg-white px-2.5 py-1.5 disabled:cursor-not-allowed disabled:opacity-50"
-          onClick={onRedo}
-          disabled={!canRedo}
-          aria-label="Redo"
-        >
-          Redo
-        </button>
-        <button
-          className="cursor-pointer rounded border border-[#ddd] bg-white px-2.5 py-1.5"
-          onClick={onAutoLayout}
-        >
-          Auto-layout
-        </button>
+      <div className="absolute top-2 right-2 z-[5] flex flex-col items-end gap-1.5">
+        <BuilderToolbar
+          workflowName={workflowName}
+          workflowDescription={workflowDescription}
+          onNameChange={setWorkflowName}
+          onDescriptionChange={setWorkflowDescription}
+          yamlViewMode={yamlViewMode}
+          onYamlViewModeChange={setYamlViewMode}
+          hasUnsavedChanges={hasUnsavedChanges}
+          onNew={onNew}
+          onExport={onExport}
+          onImportFile={onImportFile}
+          onAutoLayout={onAutoLayout}
+          importError={importError}
+        />
+        <div className="flex items-center gap-2">
+          <button
+            className="cursor-pointer rounded border border-[#ddd] bg-white px-2.5 py-1.5 disabled:cursor-not-allowed disabled:opacity-50"
+            onClick={onUndo}
+            disabled={!canUndo}
+            aria-label="Undo"
+          >
+            Undo
+          </button>
+          <button
+            className="cursor-pointer rounded border border-[#ddd] bg-white px-2.5 py-1.5 disabled:cursor-not-allowed disabled:opacity-50"
+            onClick={onRedo}
+            disabled={!canRedo}
+            aria-label="Redo"
+          >
+            Redo
+          </button>
+        </div>
       </div>
-      <div className="min-w-0 flex-1" ref={wrapperRef}>
-        <ReactFlow
-          nodes={styledNodes}
-          nodeTypes={NODE_TYPES}
-          onNodesChange={onNodesChange}
-          edges={styledEdges}
-          onEdgesChange={onEdgesChange}
-          onConnect={onConnect}
-          onEdgeDoubleClick={onEdgeDoubleClick}
-          onNodeClick={onNodeClick}
-          onPaneClick={onPaneClick}
-          onNodeContextMenu={onNodeContextMenu}
-          onDrop={onDrop}
-          onDragOver={onDragOver}
-          deleteKeyCode={null}
-          fitView
-        >
-          <Background />
-          <MiniMap />
-          <Controls />
-        </ReactFlow>
+      <div className="flex min-w-0 flex-1">
+        <div className="min-w-0 flex-1" ref={wrapperRef}>
+          <ReactFlow
+            nodes={styledNodes}
+            nodeTypes={NODE_TYPES}
+            onNodesChange={onNodesChange}
+            edges={styledEdges}
+            onEdgesChange={onEdgesChange}
+            onConnect={onConnect}
+            onEdgeDoubleClick={onEdgeDoubleClick}
+            onNodeClick={onNodeClick}
+            onPaneClick={onPaneClick}
+            onNodeContextMenu={onNodeContextMenu}
+            onDrop={onDrop}
+            onDragOver={onDragOver}
+            deleteKeyCode={null}
+            fitView
+          >
+            <Background />
+            <MiniMap />
+            <Controls />
+          </ReactFlow>
+        </div>
+        {yamlViewMode === "split" ? <YamlCodeView mode={yamlViewMode} yaml={yamlText} /> : null}
       </div>
+      {yamlViewMode === "full" ? <YamlCodeView mode={yamlViewMode} yaml={yamlText} /> : null}
       {selectedNode ? (
         <NodeInspector node={selectedNode} onFieldChange={onFieldChange} />
       ) : null}

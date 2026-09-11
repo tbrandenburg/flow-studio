@@ -18,7 +18,9 @@ export function WorkflowNode({ data }: NodeProps<WorkflowFlowNode>) {
         >
           {kind.badge}
         </div>
-        <div className="truncate text-sm font-medium text-[#222]">{data.label}</div>
+        <div className="truncate text-sm font-medium text-[#222]">
+          {data.label || kind.description}
+        </div>
         <div className="truncate text-xs text-[#888]">{kind.preview(data)}</div>
       </div>
       <Handle type="source" position={Position.Bottom} />

@@ -34,6 +34,13 @@ describe("serialize", () => {
     }
   });
 
+  it("sets node.type to the registered React Flow node type, not the kind", () => {
+    const { nodes } = definitionToGraph(fixtureDefinition());
+    for (const node of nodes) {
+      expect(node.type).toBe("workflowNode");
+    }
+  });
+
   it("derives depends_on strictly from edges, never from node data", () => {
     const def = fixtureDefinition();
     const { nodes, edges } = definitionToGraph(def);
@@ -50,5 +57,26 @@ describe("serialize", () => {
     const result = graphToDefinition(nodes, edges, { name: def.name });
     const nodeA = result.nodes.find((node) => node.id === "node-a");
     expect(nodeA?.depends_on).toBeUndefined();
+  });
+
+  it("preserves a custom node label through definitionToGraph -> graphToDefinition", () => {
+    const def: WorkflowDefinition = {
+      name: "labeled",
+      nodes: [{ id: "node-a", label: "My custom label", prompt: "Do a thing." }],
+    };
+    const { nodes, edges } = definitionToGraph(def);
+    expect(nodes[0].data.label).toBe("My custom label");
+    const roundTripped = graphToDefinition(nodes, edges, { name: def.name });
+    expect(roundTripped.nodes[0].label).toBe("My custom label");
+  });
+
+  it("omits label when empty/absent, falling back to the kind default in-memory", () => {
+    const def: WorkflowDefinition = {
+      name: "unlabeled",
+      nodes: [{ id: "node-a", prompt: "Do a thing." }],
+    };
+    const { nodes, edges } = definitionToGraph(def);
+    const result = graphToDefinition(nodes, edges, { name: def.name });
+    expect(result.nodes[0].label).toBeUndefined();
   });
 });

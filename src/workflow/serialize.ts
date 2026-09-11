@@ -33,6 +33,7 @@ export function graphToDefinition(
       return {
         id: node.id,
         ...(dependsOn.length > 0 ? { depends_on: dependsOn } : {}),
+        ...(data.label !== undefined && data.label !== "" ? { label: data.label } : {}),
         ...(data.when !== undefined && data.when !== "" ? { when: data.when } : {}),
         ...(data.trigger_rule !== undefined ? { trigger_rule: data.trigger_rule } : {}),
         ...kind.toYaml(data),
@@ -45,10 +46,17 @@ function resolveKindData(raw: WorkflowNode): WorkflowNodeData {
   for (const kind of NODE_KINDS) {
     const result = kind.fromYaml(raw);
     if (result) {
+      // `kind.fromYaml` may supply its own hardcoded fallback label (e.g. "Shell")
+      // when the raw YAML has no `label` key. That fallback must never be treated
+      // as a user-provided value, or every reload/import would "invent" a label
+      // that then gets serialized back out, breaking round-trip identity. Only a
+      // label explicitly present in the raw YAML is preserved here; the UI is
+      // responsible for falling back to the kind's badge/description for display
+      // when `label` is empty.
       return {
         id: raw.id,
-        label: "",
         ...result,
+        label: typeof raw.label === "string" ? raw.label : "",
       } as WorkflowNodeData;
     }
   }
@@ -69,7 +77,7 @@ export function definitionToGraph(def: WorkflowDefinition): {
     };
     return {
       id: raw.id,
-      type: data.kind,
+      type: "workflowNode",
       position: { x: 0, y: 0 },
       data,
     };
