@@ -9,15 +9,19 @@ describe("initialNodes", () => {
   });
 
   it("only references node types that are registered in nodeTypes", () => {
-    const customTypes = initialNodes
-      .map((node) => node.type)
-      .filter(
-        (type): type is string =>
-          Boolean(type) && !["input", "output", "default"].includes(type ?? ""),
-      );
+    const types = initialNodes.map((node) => node.type ?? "default");
 
-    for (const type of customTypes) {
+    for (const type of types) {
       expect(nodeTypes).toHaveProperty(type);
     }
+  });
+
+  it("overrides all built-in node type keys with editable label renderers", () => {
+    expect(Object.keys(nodeTypes).sort()).toEqual([
+      "default",
+      "input",
+      "output",
+      "position-logger",
+    ]);
   });
 });

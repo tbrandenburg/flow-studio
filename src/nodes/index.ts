@@ -1,5 +1,6 @@
 import type { NodeTypes } from "@xyflow/react";
 
+import { createLabelNode } from "./LabelNode";
 import { PositionLoggerNode } from "./PositionLoggerNode";
 import type { AppNode } from "./types";
 
@@ -21,5 +22,8 @@ export const initialNodes: AppNode[] = [
 ];
 
 export const nodeTypes = {
+  input: createLabelNode("input"),
+  default: createLabelNode("default"),
+  output: createLabelNode("output"),
   "position-logger": PositionLoggerNode,
 } satisfies NodeTypes;
