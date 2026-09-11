@@ -1,3 +1,20 @@
+@import "tailwindcss";
+
+@theme {
+  --color-surface: #17181c;
+  --color-border: #2a2c33;
+  --color-accent: #6366f1;
+  --color-error: #ef4444;
+  --color-warning: #f59e0b;
+
+  --color-node-bash: #22c55e;
+  --color-node-prompt: #6366f1;
+  --color-node-command: #38bdf8;
+  --color-node-loop: #f59e0b;
+  --color-node-approval: #ec4899;
+  --color-node-wait: #a855f7;
+}
+
 :root {
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
@@ -9,4 +26,21 @@ body,
 #root {
   height: 100%;
   margin: 0;
+}
+
+.node-label {
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.node-label-editor {
+  box-sizing: border-box;
+  display: block;
+  width: 100%;
+  resize: none;
+  font: inherit;
+  text-align: inherit;
+  padding: 2px 4px;
+  border: 1px solid var(--xy-node-border, #1a192b);
+  border-radius: 2px;
 }

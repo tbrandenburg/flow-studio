@@ -15,7 +15,6 @@ import {
 } from "@xyflow/react";
 
 import "@xyflow/react/dist/style.css";
-import "./App.css";
 
 import { initialEdges, edgeTypes } from "./edges";
 import { initialNodes, nodeTypes } from "./nodes";
@@ -77,16 +76,16 @@ function Flow() {
   );
 
   return (
-    <div className="app-layout">
+    <div className="relative flex h-full w-full">
       <button
-        className="palette-toggle"
+        className="hidden absolute top-2 left-2 z-[5] cursor-pointer rounded border border-[#ddd] bg-white px-2.5 py-1.5 max-md:block"
         onClick={() => setPaletteOpen((open) => !open)}
         aria-label="Toggle node palette"
       >
         ☰ Nodes
       </button>
       <Sidebar open={paletteOpen} onClose={() => setPaletteOpen(false)} />
-      <div className="flow-wrapper" ref={wrapperRef}>
+      <div className="min-w-0 flex-1" ref={wrapperRef}>
         <ReactFlow
           nodes={nodes}
           nodeTypes={nodeTypes}
