@@ -33,7 +33,6 @@ export function graphToDefinition(
       return {
         id: node.id,
         ...(dependsOn.length > 0 ? { depends_on: dependsOn } : {}),
-        ...(data.label !== undefined && data.label !== "" ? { label: data.label } : {}),
         ...(data.when !== undefined && data.when !== "" ? { when: data.when } : {}),
         ...(data.trigger_rule !== undefined ? { trigger_rule: data.trigger_rule } : {}),
         ...kind.toYaml(data),
