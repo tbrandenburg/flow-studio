@@ -1,0 +1,106 @@
+import { describe, expect, it } from "vitest";
+import { scriptKind } from "./script";
+import { NODE_KINDS } from "./index";
+import { fromYaml, toYaml } from "../yaml";
+import type { WorkflowDefinition } from "../schema";
+
+describe("scriptKind.fromYaml", () => {
+  it("parses a minimal script node", () => {
+    const result = scriptKind.fromYaml({ script: "deploy.sh" });
+    expect(result).toEqual({
+      kind: "script",
+      label: "Script",
+      script: "deploy.sh",
+      runtime: undefined,
+      deps: undefined,
+      timeout: undefined,
+    });
+  });
+
+  it("parses runtime, deps, and timeout", () => {
+    const result = scriptKind.fromYaml({
+      script: "build.ts",
+      runtime: "bun",
+      deps: ["typescript"],
+      timeout: 5000,
+    });
+    expect(result?.runtime).toBe("bun");
+    expect(result?.deps).toEqual(["typescript"]);
+    expect(result?.timeout).toBe(5000);
+  });
+
+  it("returns null when script key is missing", () => {
+    expect(scriptKind.fromYaml({})).toBeNull();
+  });
+
+  it("returns null when script is not a string", () => {
+    expect(scriptKind.fromYaml({ script: 123 })).toBeNull();
+  });
+});
+
+describe("scriptKind.toYaml", () => {
+  it("round-trips script, runtime, deps, and timeout", () => {
+    const parsed = scriptKind.fromYaml({
+      script: "build.ts",
+      runtime: "uv",
+      deps: ["typescript"],
+      timeout: 5000,
+    });
+    expect(parsed).not.toBeNull();
+    const yaml = scriptKind.toYaml(parsed as never);
+    expect(yaml).toEqual({
+      script: "build.ts",
+      runtime: "uv",
+      deps: ["typescript"],
+      timeout: 5000,
+    });
+  });
+
+  it("omits optional fields when absent", () => {
+    const parsed = scriptKind.fromYaml({ script: "deploy.sh" });
+    const yaml = scriptKind.toYaml(parsed as never);
+    expect(yaml).toEqual({ script: "deploy.sh" });
+  });
+});
+
+describe("scriptKind registration", () => {
+  it("is registered before promptKind and unknownKind", () => {
+    const ids = NODE_KINDS.map((k) => k.id);
+    expect(ids).toContain("script");
+    expect(ids.indexOf("script")).toBeLessThan(ids.indexOf("prompt"));
+    expect(ids.at(-1)).toBe("unknown");
+  });
+});
+
+describe("script node full-file round-trip", () => {
+  function fixtureWithScriptNode(): WorkflowDefinition {
+    return {
+      name: "deliver",
+      nodes: [
+        {
+          id: "run-script",
+          script: "build.ts",
+          runtime: "bun",
+          deps: ["typescript"],
+          timeout: 5000,
+          depends_on: [],
+        },
+      ],
+    };
+  }
+
+  it("imports and round-trips a script node losslessly", () => {
+    const def = fixtureWithScriptNode();
+    const yaml = toYaml(def);
+    const parsed = fromYaml(yaml);
+
+    const node = parsed.nodes.find((n) => n.id === "run-script");
+    expect(node).toMatchObject({
+      id: "run-script",
+      script: "build.ts",
+      runtime: "bun",
+      deps: ["typescript"],
+      timeout: 5000,
+    });
+  });
+});

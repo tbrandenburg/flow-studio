@@ -6,7 +6,7 @@ import type { WorkflowDefinition } from "../schema";
 
 describe("unknownKind", () => {
   it("always matches any raw node shape", () => {
-    expect(unknownKind.fromYaml({ id: "n1", script: "deploy.sh" })).not.toBeNull();
+    expect(unknownKind.fromYaml({ id: "n1", compose_fan_out: { items: "x" } })).not.toBeNull();
     expect(unknownKind.fromYaml({})).not.toBeNull();
   });
 
@@ -17,10 +17,10 @@ describe("unknownKind", () => {
       label: "My label",
       when: "cond",
       trigger_rule: "all_done",
-      script: "deploy.sh",
+      compose_fan_out: { items: "x" },
       timeout: 30,
     });
-    expect(result?.raw).toEqual({ script: "deploy.sh", timeout: 30 });
+    expect(result?.raw).toEqual({ compose_fan_out: { items: "x" }, timeout: 30 });
   });
 
   it("reconstructs the raw node body losslessly via toYaml", () => {
@@ -36,6 +36,15 @@ describe("unknownKind", () => {
   it("does not shadow kinds with a registered handler", () => {
     const bashResult = NODE_KINDS.find((k) => k.fromYaml({ bash: "echo hi" }) !== null);
     expect(bashResult?.id).toBe("bash");
+
+    const scriptResult = NODE_KINDS.find((k) => k.fromYaml({ script: "x" }) !== null);
+    expect(scriptResult?.id).toBe("script");
+
+    const haltResult = NODE_KINDS.find((k) => k.fromYaml({ cancel: "reason" }) !== null);
+    expect(haltResult?.id).toBe("halt");
+
+    const workflowResult = NODE_KINDS.find((k) => k.fromYaml({ workflow: "x" }) !== null);
+    expect(workflowResult?.id).toBe("workflow");
   });
 });
 
@@ -45,21 +54,21 @@ describe("unknown kind full-file round-trip", () => {
       name: "deliver",
       nodes: [
         {
-          id: "node-script1",
-          script: "deploy.sh",
+          id: "node-fanout1",
+          compose_fan_out: { items: "${matrix}", max_parallel: 2 },
           args: ["--env", "prod"],
           depends_on: [],
         },
         {
           id: "node-bash1",
           bash: "echo done",
-          depends_on: ["node-script1"],
+          depends_on: ["node-fanout1"],
         },
       ],
     };
   }
 
-  it("imports a file containing an unsupported `script:` node without throwing", () => {
+  it("imports a file containing an unsupported `compose_fan_out:` node without throwing", () => {
     const def = fixtureWithUnknownNode();
     const yaml = toYaml(def);
     expect(() => fromYaml(yaml)).not.toThrow();
@@ -70,10 +79,10 @@ describe("unknown kind full-file round-trip", () => {
     const yaml = toYaml(def);
     const parsed = fromYaml(yaml);
 
-    const scriptNode = parsed.nodes.find((n) => n.id === "node-script1");
-    expect(scriptNode).toMatchObject({
-      id: "node-script1",
-      script: "deploy.sh",
+    const fanOutNode = parsed.nodes.find((n) => n.id === "node-fanout1");
+    expect(fanOutNode).toMatchObject({
+      id: "node-fanout1",
+      compose_fan_out: { items: "${matrix}", max_parallel: 2 },
       args: ["--env", "prod"],
     });
   });
