@@ -3,6 +3,7 @@ import { bashKind } from "./bash";
 import { commandKind } from "./command";
 import { includeKind } from "./include";
 import { loopKind } from "./loop";
+import { loopGroupKind } from "./loop_group";
 import { promptKind } from "./prompt";
 import { unknownKind } from "./unknown";
 import { waitKind } from "./wait";
@@ -13,6 +14,7 @@ export type { BashNodeData } from "./bash";
 export type { CommandNodeData } from "./command";
 export type { IncludeNodeData } from "./include";
 export type { LoopNodeData } from "./loop";
+export type { LoopGroupNodeData } from "./loop_group";
 export type { ApprovalNodeData } from "./approval";
 export type { WaitNodeData } from "./wait";
 export type { PromptNodeData } from "./prompt";
@@ -28,6 +30,7 @@ export const NODE_KINDS: readonly NodeKind[] = [
   bashKind,
   commandKind,
   loopKind,
+  loopGroupKind,
   approvalKind,
   waitKind,
   includeKind,

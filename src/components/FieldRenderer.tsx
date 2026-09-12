@@ -34,10 +34,17 @@ export function FieldRenderer({ field, value, onChange }: FieldRendererProps) {
   }
 
   if (field.type === "textarea") {
+    // Non-string values (e.g. loop_group's raw nested `nodes` array) are
+    // shown as a best-effort JSON dump for display/summary purposes only;
+    // this is not a full structured editor (see issue #10). Edits are
+    // passed through as plain strings, which a kind's `toYaml` may choose
+    // to ignore if it expects a structured shape.
+    const displayValue =
+      typeof value === "string" ? value : value === undefined ? "" : JSON.stringify(value, null, 2);
     return (
       <textarea
         className={`${inputClass} min-h-[80px] resize-y${field.mono ? " font-mono" : ""}`}
-        value={typeof value === "string" ? value : ""}
+        value={displayValue}
         placeholder={field.placeholder}
         onChange={(event) => onChange(event.target.value)}
       />
