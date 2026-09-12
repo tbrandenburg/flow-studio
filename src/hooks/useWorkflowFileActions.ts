@@ -16,6 +16,7 @@ export interface UseWorkflowFileActionsArgs {
   yamlText: string;
   setWorkflowName: (name: string) => void;
   setWorkflowDescription: (description: string) => void;
+  setWorkflowExtra: (extra: Record<string, unknown>) => void;
   setImportError: (message: string | null) => void;
   setHasUnsavedChanges: (dirty: boolean) => void;
 }
@@ -39,6 +40,7 @@ export function useWorkflowFileActions({
   yamlText,
   setWorkflowName,
   setWorkflowDescription,
+  setWorkflowExtra,
   setImportError,
   setHasUnsavedChanges,
 }: UseWorkflowFileActionsArgs): UseWorkflowFileActionsResult {
@@ -47,6 +49,7 @@ export function useWorkflowFileActions({
     setEdges(() => []);
     setWorkflowName(DEFAULT_WORKFLOW_NAME);
     setWorkflowDescription("");
+    setWorkflowExtra({});
     setImportError(null);
     clearLocalStorage();
     setHasUnsavedChanges(false);
@@ -56,6 +59,7 @@ export function useWorkflowFileActions({
     setImportError,
     setNodes,
     setWorkflowDescription,
+    setWorkflowExtra,
     setWorkflowName,
   ]);
 
@@ -72,6 +76,7 @@ export function useWorkflowFileActions({
           setEdges(() => imported.edges);
           setWorkflowName(imported.name);
           setWorkflowDescription(imported.description);
+          setWorkflowExtra(imported.extra);
           setImportError(null);
           markDirty();
         } catch (cause) {
@@ -81,7 +86,15 @@ export function useWorkflowFileActions({
         }
       });
     },
-    [markDirty, setEdges, setImportError, setNodes, setWorkflowDescription, setWorkflowName],
+    [
+      markDirty,
+      setEdges,
+      setImportError,
+      setNodes,
+      setWorkflowDescription,
+      setWorkflowExtra,
+      setWorkflowName,
+    ],
   );
 
   return { onNew, onExport, onImportFile };

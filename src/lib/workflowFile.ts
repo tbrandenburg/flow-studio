@@ -31,6 +31,10 @@ export interface ImportedWorkflow {
   edges: Edge[];
   name: string;
   description: string;
+  // Unmodeled workflow-level fields (sandbox, tags, ...) captured from the
+  // imported YAML so a subsequent export re-emits them unchanged. See
+  // `WorkflowMeta.extra` in serialize.ts.
+  extra: Record<string, unknown>;
 }
 
 /**
@@ -39,11 +43,12 @@ export interface ImportedWorkflow {
  */
 export function parseWorkflowYaml(text: string): ImportedWorkflow {
   const def = fromYaml(text);
-  const { nodes, edges } = definitionToGraph(def);
+  const { nodes, edges, extra } = definitionToGraph(def);
   return {
     nodes: layoutWithDagre(nodes, edges),
     edges,
     name: def.name,
     description: def.description ?? "",
+    extra,
   };
 }

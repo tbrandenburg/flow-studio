@@ -30,6 +30,7 @@ export function useWorkflowState() {
   const [edges, setEdges, onEdgesChangeBase] = useEdgesState(restored.edges);
   const [workflowName, setWorkflowName] = useState(restored.name);
   const [workflowDescription, setWorkflowDescription] = useState(restored.description);
+  const [workflowExtra, setWorkflowExtra] = useState<Record<string, unknown>>(restored.extra);
   const [yamlViewMode, setYamlViewMode] = useState<YamlViewMode>("hidden");
   const [importError, setImportError] = useState<string | null>(null);
   const [paletteOpen, setPaletteOpen] = useState(false);
@@ -115,8 +116,12 @@ export function useWorkflowState() {
   }, [edges, fitView, markDirty, nodes, pushSnapshot, setNodes]);
 
   const workflowMeta = useMemo(
-    () => ({ name: workflowName, description: workflowDescription || undefined }),
-    [workflowName, workflowDescription],
+    () => ({
+      name: workflowName,
+      description: workflowDescription || undefined,
+      extra: workflowExtra,
+    }),
+    [workflowName, workflowDescription, workflowExtra],
   );
 
   const yamlText = useMemo(
@@ -146,6 +151,7 @@ export function useWorkflowState() {
     yamlText,
     setWorkflowName,
     setWorkflowDescription,
+    setWorkflowExtra,
     setImportError,
     setHasUnsavedChanges,
   });

@@ -76,6 +76,7 @@ describe("script node full-file round-trip", () => {
   function fixtureWithScriptNode(): WorkflowDefinition {
     return {
       name: "deliver",
+      description: "test fixture",
       nodes: [
         {
           id: "run-script",

@@ -45,6 +45,7 @@ describe("halt node full-file round-trip", () => {
   function fixtureWithHaltNode(): WorkflowDefinition {
     return {
       name: "deliver",
+      description: "test fixture",
       nodes: [
         {
           id: "stop-run",

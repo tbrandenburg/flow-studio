@@ -96,6 +96,7 @@ describe("include node full-file round-trip", () => {
   function fixtureWithIncludeNode(): WorkflowDefinition {
     return {
       name: "deliver",
+      description: "test fixture",
       nodes: [
         {
           id: "run-sub-workflow",
