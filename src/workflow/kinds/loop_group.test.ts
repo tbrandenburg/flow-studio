@@ -136,3 +136,12 @@ describe("loop_group node full-file round-trip", () => {
     expect(reYamlOut).toEqual(yamlOut);
   });
 });
+
+describe("loopGroupKind fields", () => {
+  it("exposes fresh_context as boolean and nodes as read-only", () => {
+    const freshContextField = loopGroupKind.fields.find((f) => f.name === "fresh_context");
+    expect(freshContextField).toMatchObject({ type: "boolean" });
+    const nodesField = loopGroupKind.fields.find((f) => f.name === "nodes");
+    expect(nodesField).toMatchObject({ type: "textarea", readOnly: true });
+  });
+});

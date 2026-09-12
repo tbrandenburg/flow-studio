@@ -11,13 +11,6 @@ function isPlainObject(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
-function toBoolean(value: unknown): boolean | undefined {
-  if (typeof value === "boolean") return value;
-  if (value === "true") return true;
-  if (value === "false") return false;
-  return undefined;
-}
-
 export const approvalKind: NodeKind = {
   id: "approval",
   badge: "APPROVAL",
@@ -28,16 +21,15 @@ export const approvalKind: NodeKind = {
     {
       name: "capture_response",
       label: "Capture response",
-      type: "select",
-      options: ["true", "false"],
+      type: "boolean",
     },
   ],
   preview: (data) => (typeof data.message === "string" ? data.message : "approval"),
   toYaml: (data) => ({
     approval: {
       ...(data.message !== undefined && data.message !== "" ? { message: data.message } : {}),
-      ...(toBoolean(data.capture_response) !== undefined
-        ? { capture_response: toBoolean(data.capture_response) }
+      ...(typeof data.capture_response === "boolean"
+        ? { capture_response: data.capture_response }
         : {}),
     },
   }),
@@ -48,7 +40,8 @@ export const approvalKind: NodeKind = {
       kind: "approval",
       label: "Approval",
       message: approval.message as string | undefined,
-      capture_response: toBoolean(approval.capture_response),
+      capture_response:
+        typeof approval.capture_response === "boolean" ? approval.capture_response : undefined,
     };
   },
   schema,

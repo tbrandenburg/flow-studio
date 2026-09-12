@@ -63,6 +63,13 @@ describe("includeKind registration", () => {
   });
 });
 
+describe("includeKind fields", () => {
+  it("exposes a record field for with", () => {
+    const withField = includeKind.fields.find((f) => f.name === "with");
+    expect(withField).toMatchObject({ type: "record" });
+  });
+});
+
 describe("include node full-file round-trip", () => {
   function fixtureWithIncludeNode(): WorkflowDefinition {
     return {

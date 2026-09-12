@@ -14,6 +14,26 @@ function textToStringList(text: string): string[] {
     .filter((item) => item.length > 0);
 }
 
+function recordToText(value: unknown): string {
+  if (typeof value !== "object" || value === null || Array.isArray(value)) return "";
+  return Object.entries(value as Record<string, unknown>)
+    .map(([key, val]) => `${key}: ${typeof val === "string" ? val : JSON.stringify(val)}`)
+    .join("\n");
+}
+
+function textToRecord(text: string): Record<string, string> {
+  const result: Record<string, string> = {};
+  for (const line of text.split("\n")) {
+    const separatorIndex = line.indexOf(":");
+    if (separatorIndex === -1) continue;
+    const key = line.slice(0, separatorIndex).trim();
+    const val = line.slice(separatorIndex + 1).trim();
+    if (key.length === 0) continue;
+    result[key] = val;
+  }
+  return result;
+}
+
 export interface FieldRendererProps {
   field: FieldSpec;
   value: unknown;
@@ -43,10 +63,11 @@ export function FieldRenderer({ field, value, onChange }: FieldRendererProps) {
       typeof value === "string" ? value : value === undefined ? "" : JSON.stringify(value, null, 2);
     return (
       <textarea
-        className={`${inputClass} min-h-[80px] resize-y${field.mono ? " font-mono" : ""}`}
+        className={`${inputClass} min-h-[80px] resize-y${field.mono ? " font-mono" : ""}${field.readOnly ? " opacity-70" : ""}`}
         value={displayValue}
         placeholder={field.placeholder}
-        onChange={(event) => onChange(event.target.value)}
+        readOnly={field.readOnly}
+        onChange={field.readOnly ? undefined : (event) => onChange(event.target.value)}
       />
     );
   }
@@ -81,6 +102,28 @@ export function FieldRenderer({ field, value, onChange }: FieldRendererProps) {
           </option>
         ))}
       </select>
+    );
+  }
+
+  if (field.type === "boolean") {
+    return (
+      <input
+        className="nodrag"
+        type="checkbox"
+        checked={value === true}
+        onChange={(event) => onChange(event.target.checked)}
+      />
+    );
+  }
+
+  if (field.type === "record") {
+    return (
+      <textarea
+        className={`${inputClass} min-h-[80px] resize-y font-mono`}
+        defaultValue={recordToText(value)}
+        placeholder={field.placeholder ?? "key: value"}
+        onBlur={(event) => onChange(textToRecord(event.target.value))}
+      />
     );
   }
 
