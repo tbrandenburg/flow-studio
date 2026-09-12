@@ -1,6 +1,13 @@
 import { z } from "zod";
 
-export const TRIGGER_RULES = ["all_success", "all_done", "any_success"] as const;
+// Sourced from Archon's authoritative schema (packages/workflows/src/schemas/dag-node.ts
+// triggerRuleSchema) — do not hand-invent values here; keep in sync with upstream.
+export const TRIGGER_RULES = [
+  "all_success",
+  "one_success",
+  "none_failed_min_one_success",
+  "all_done",
+] as const;
 
 // Kind-specific fields are validated separately (see kinds/*.ts `schema`)
 // after `fromYaml` has sniffed which kind a raw node object represents.
