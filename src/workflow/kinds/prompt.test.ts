@@ -107,6 +107,28 @@ describe("promptKind.toYaml", () => {
     } as never);
     expect(yaml).not.toHaveProperty("agent");
   });
+
+  it("round-trips a real Archon JSON-schema-shaped output_format object (#29)", () => {
+    const raw = {
+      prompt: "do it",
+      output_format: {
+        type: "object",
+        properties: { summary: { type: "string" } },
+        required: ["summary"],
+      },
+    };
+    const parsed = promptKind.fromYaml(raw);
+    expect(parsed).not.toBeNull();
+    const validated = promptKind.schema.safeParse(parsed);
+    expect(validated.success).toBe(true);
+    const yaml = promptKind.toYaml({
+      id: "n1",
+      kind: "prompt",
+      label: "Prompt",
+      ...parsed,
+    } as never);
+    expect(yaml).toEqual(raw);
+  });
 });
 
 describe("promptKind fields", () => {
@@ -118,6 +140,11 @@ describe("promptKind fields", () => {
   it("exposes a text field for mcp", () => {
     const mcpField = promptKind.fields.find((f) => f.name === "mcp");
     expect(mcpField).toMatchObject({ type: "text" });
+  });
+
+  it("exposes a record field for output_format (#29)", () => {
+    const outputFormatField = promptKind.fields.find((f) => f.name === "output_format");
+    expect(outputFormatField).toMatchObject({ type: "record" });
   });
 
   it("does not expose an agent (singular) field", () => {

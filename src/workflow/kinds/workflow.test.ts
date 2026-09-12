@@ -81,6 +81,7 @@ describe("workflow node full-file round-trip", () => {
   function fixtureWithWorkflowNode(): WorkflowDefinition {
     return {
       name: "deliver",
+      description: "test fixture",
       nodes: [
         {
           id: "run-sub",

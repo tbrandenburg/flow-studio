@@ -7,7 +7,11 @@ const schema = z.object({
   model: z.string().optional(),
   provider: z.string().optional(),
   context: z.string().optional(),
-  output_format: z.string().optional(),
+  // Archon's real `output_format` is a JSON-schema-shaped object
+  // (z.record(z.string(), z.unknown())), not a free-form string. Widen to a
+  // lossless passthrough record (matches `hooks` above) so real structured
+  // output-format schemas round-trip without silent data loss.
+  output_format: z.record(z.string(), z.unknown()).optional(),
   allowed_tools: z.array(z.string()).optional(),
   denied_tools: z.array(z.string()).optional(),
   mcp: z.string().optional(),
@@ -50,7 +54,7 @@ export const promptKind: NodeKind = {
     { name: "model", label: "Model", type: "text" },
     { name: "provider", label: "Provider", type: "text" },
     { name: "context", label: "Context", type: "textarea" },
-    { name: "output_format", label: "Output format", type: "text" },
+    { name: "output_format", label: "Output format", type: "record" },
     { name: "allowed_tools", label: "Allowed tools", type: "stringList" },
     { name: "denied_tools", label: "Denied tools", type: "stringList" },
     { name: "mcp", label: "MCP", type: "text" },
@@ -66,7 +70,7 @@ export const promptKind: NodeKind = {
     ...(data.model !== undefined && data.model !== "" ? { model: data.model } : {}),
     ...(data.provider !== undefined && data.provider !== "" ? { provider: data.provider } : {}),
     ...(data.context !== undefined && data.context !== "" ? { context: data.context } : {}),
-    ...(data.output_format !== undefined && data.output_format !== ""
+    ...(isPlainObject(data.output_format) && Object.keys(data.output_format).length > 0
       ? { output_format: data.output_format }
       : {}),
     ...(isStringArray(data.allowed_tools) && data.allowed_tools.length > 0
@@ -96,7 +100,7 @@ export const promptKind: NodeKind = {
       model: raw.model as string | undefined,
       provider: raw.provider as string | undefined,
       context: raw.context as string | undefined,
-      output_format: raw.output_format as string | undefined,
+      output_format: isPlainObject(raw.output_format) ? raw.output_format : undefined,
       allowed_tools: isStringArray(raw.allowed_tools) ? raw.allowed_tools : undefined,
       denied_tools: isStringArray(raw.denied_tools) ? raw.denied_tools : undefined,
       mcp: raw.mcp as string | undefined,

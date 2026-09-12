@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import type { Edge } from "@xyflow/react";
 
 import { saveToLocalStorage } from "../lib/persistence";
-import { graphToDefinition } from "../workflow/serialize";
+import { graphToDefinition, type WorkflowMeta } from "../workflow/serialize";
 import type { WorkflowFlowNode } from "../workflow/types";
 
 const AUTOSAVE_DEBOUNCE_MS = 300;
@@ -14,7 +14,7 @@ const AUTOSAVE_DEBOUNCE_MS = 300;
 export function useAutosave(
   nodes: WorkflowFlowNode[],
   edges: Edge[],
-  workflowMeta: { name: string; description?: string },
+  workflowMeta: WorkflowMeta,
 ): void {
   useEffect(() => {
     const timer = window.setTimeout(() => {
