@@ -7,7 +7,7 @@ export function WorkflowNode({ data }: NodeProps<WorkflowFlowNode>) {
 
   return (
     <div
-      className="min-w-[160px] max-w-[240px] rounded-md border border-[#ddd] bg-white shadow-sm"
+      className="min-w-[160px] max-w-[240px] rounded-md border border-border bg-surface-elevated shadow-sm"
       style={{ borderTop: `3px solid var(${kind.accentVar})` }}
     >
       <Handle type="target" position={Position.Top} />
@@ -18,10 +18,10 @@ export function WorkflowNode({ data }: NodeProps<WorkflowFlowNode>) {
         >
           {kind.badge}
         </div>
-        <div className="truncate text-sm font-medium text-[#222]">
+        <div className="truncate text-sm font-medium text-text-primary">
           {data.label || kind.description}
         </div>
-        <div className="truncate text-xs text-[#888]">{kind.preview(data)}</div>
+        <div className="truncate text-xs text-text-tertiary">{kind.preview(data)}</div>
       </div>
       <Handle type="source" position={Position.Bottom} />
     </div>

@@ -11,6 +11,7 @@ import { ValidationPanel } from "./ValidationPanel";
 import { BuilderToolbar } from "./BuilderToolbar";
 import { YamlCodeView } from "./YamlCodeView";
 import { useWorkflowCanvas } from "../hooks/useWorkflowCanvas";
+import { useColorMode } from "../hooks/useColorMode";
 
 const NODE_TYPES = { workflowNode: WorkflowNode } satisfies NodeTypes;
 
@@ -59,11 +60,12 @@ export function WorkflowBuilder() {
     onDeleteNode,
     onDuplicateNode,
   } = useWorkflowCanvas();
+  const { colorMode, setColorMode } = useColorMode();
 
   return (
     <div className="relative flex h-full w-full">
       <button
-        className="hidden absolute top-2 left-2 z-[5] cursor-pointer rounded border border-[#ddd] bg-white px-2.5 py-1.5 max-md:block"
+        className="hidden absolute top-2 left-2 z-[5] cursor-pointer rounded border border-border bg-surface-elevated px-2.5 py-1.5 max-md:block"
         onClick={() => setPaletteOpen((open) => !open)}
         aria-label="Toggle node palette"
       >
@@ -84,10 +86,12 @@ export function WorkflowBuilder() {
           onImportFile={onImportFile}
           onAutoLayout={onAutoLayout}
           importError={importError}
+          colorMode={colorMode}
+          onColorModeChange={setColorMode}
         />
         <div className="flex items-center gap-2">
           <button
-            className="cursor-pointer rounded border border-[#ddd] bg-white px-2.5 py-1.5 disabled:cursor-not-allowed disabled:opacity-50"
+            className="cursor-pointer rounded border border-border bg-surface-elevated px-2.5 py-1.5 disabled:cursor-not-allowed disabled:opacity-50"
             onClick={onUndo}
             disabled={!canUndo}
             aria-label="Undo"
@@ -95,7 +99,7 @@ export function WorkflowBuilder() {
             Undo
           </button>
           <button
-            className="cursor-pointer rounded border border-[#ddd] bg-white px-2.5 py-1.5 disabled:cursor-not-allowed disabled:opacity-50"
+            className="cursor-pointer rounded border border-border bg-surface-elevated px-2.5 py-1.5 disabled:cursor-not-allowed disabled:opacity-50"
             onClick={onRedo}
             disabled={!canRedo}
             aria-label="Redo"
@@ -107,6 +111,7 @@ export function WorkflowBuilder() {
       <div className="flex min-w-0 flex-1">
         <div className="min-w-0 flex-1" ref={wrapperRef}>
           <ReactFlow
+            colorMode={colorMode}
             nodes={styledNodes}
             nodeTypes={NODE_TYPES}
             onNodesChange={onNodesChange}

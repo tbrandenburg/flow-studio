@@ -1,27 +1,76 @@
 @import "tailwindcss";
 
-@theme {
-  --color-surface: #17181c;
-  --color-border: #2a2c33;
-  --color-accent: #6366f1;
-  --color-error: #ef4444;
-  --color-warning: #f59e0b;
-
-  --color-node-bash: #22c55e;
-  --color-node-prompt: #6366f1;
-  --color-node-command: #38bdf8;
-  --color-node-loop: #f59e0b;
-  --color-node-loop-group: #d97706;
-  --color-node-approval: #ec4899;
-  --color-node-wait: #a855f7;
-  --color-node-include: #14b8a6;
-  --color-node-unknown: #6b7280;
-}
+@custom-variant dark (&:is(.dark *));
 
 :root {
+  --surface: oklch(0.99 0 0);
+  --surface-elevated: oklch(1 0 0);
+  --border: oklch(0.87 0 0);
+  --border-bright: oklch(0.7 0 0);
+  --text-primary: oklch(0.2 0 0);
+  --text-secondary: oklch(0.45 0 0);
+  --text-tertiary: oklch(0.58 0 0);
+
+  --accent: oklch(0.58 0.2 275);
+  --accent-hover: oklch(0.5 0.2 275);
+  --success: oklch(0.65 0.17 155);
+  --warning: oklch(0.75 0.15 75);
+  --error: oklch(0.6 0.2 25);
+
+  --color-node-command: oklch(0.55 0.18 250);
+  --color-node-prompt: oklch(0.5 0.19 290);
+  --color-node-bash: oklch(0.65 0.15 75);
+  --color-node-loop: oklch(0.52 0.18 170);
+  --color-node-loop-group: oklch(0.6 0.15 55);
+  --color-node-approval: oklch(0.62 0.17 40);
+  --color-node-wait: oklch(0.66 0.13 205);
+  --color-node-include: oklch(0.6 0.13 185);
+  --color-node-unknown: oklch(0.55 0.02 260);
+
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
+}
+
+.dark {
+  --surface: oklch(0.18 0.008 260);
+  --surface-elevated: oklch(0.22 0.01 260);
+  --border: oklch(0.28 0.01 260);
+  --border-bright: oklch(0.35 0.015 260);
+  --text-primary: oklch(0.93 0.005 260);
+  --text-secondary: oklch(0.65 0.01 260);
+  --text-tertiary: oklch(0.45 0.01 260);
+
+  --accent: oklch(0.72 0.18 250);
+  --accent-hover: oklch(0.58 0.18 250);
+  --success: oklch(0.65 0.17 155);
+  --warning: oklch(0.75 0.15 75);
+  --error: oklch(0.6 0.2 25);
+
+  --color-node-command: oklch(0.62 0.18 250);
+  --color-node-prompt: oklch(0.58 0.19 290);
+  --color-node-bash: oklch(0.75 0.15 75);
+  --color-node-loop: oklch(0.62 0.18 170);
+  --color-node-loop-group: oklch(0.72 0.15 55);
+  --color-node-approval: oklch(0.72 0.17 40);
+  --color-node-wait: oklch(0.76 0.13 205);
+  --color-node-include: oklch(0.7 0.13 185);
+  --color-node-unknown: oklch(0.65 0.02 260);
+}
+
+@theme inline {
+  --color-surface: var(--surface);
+  --color-surface-elevated: var(--surface-elevated);
+  --color-border: var(--border);
+  --color-border-bright: var(--border-bright);
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-tertiary: var(--text-tertiary);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-error: var(--error);
 }
 
 html,

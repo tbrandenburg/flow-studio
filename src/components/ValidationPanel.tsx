@@ -37,11 +37,11 @@ export function ValidationPanel({ issues, onIssueClick }: ValidationPanelProps) 
 
   return (
     <div
-      className="absolute bottom-2 left-2 z-[5] max-h-[240px] w-[320px] overflow-y-auto rounded-md border border-[#ddd] bg-white shadow-lg"
+      className="absolute bottom-2 left-2 z-[5] max-h-[240px] w-[320px] overflow-y-auto rounded-md border border-border bg-surface-elevated shadow-lg"
       role="region"
       aria-label="Validation issues"
     >
-      <div className="border-b border-[#eee] px-2.5 py-1.5 text-xs font-semibold text-[#666]">
+      <div className="border-b border-border px-2.5 py-1.5 text-xs font-semibold text-text-secondary">
         Validation ({sorted.length})
       </div>
       <ul>
@@ -49,7 +49,7 @@ export function ValidationPanel({ issues, onIssueClick }: ValidationPanelProps) 
           <li key={issue.id}>
             <button
               type="button"
-              className="flex w-full cursor-pointer items-start gap-1.5 px-2.5 py-1.5 text-left text-[13px] hover:bg-[#f2f2f2] disabled:cursor-default disabled:hover:bg-transparent"
+              className="flex w-full cursor-pointer items-start gap-1.5 px-2.5 py-1.5 text-left text-[13px] hover:bg-surface-elevated disabled:cursor-default disabled:hover:bg-transparent"
               onClick={() => onIssueClick(issue)}
               disabled={issue.nodeId === undefined}
             >

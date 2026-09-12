@@ -31,14 +31,14 @@ export function NodeContextMenu({
   return (
     <div
       ref={ref}
-      className="absolute z-20 w-[140px] rounded-md border border-[#ddd] bg-white p-1 shadow-lg"
+      className="absolute z-20 w-[140px] rounded-md border border-border bg-surface-elevated p-1 shadow-lg"
       style={{ left, top }}
       role="menu"
       aria-label="Node actions"
     >
       <button
         role="menuitem"
-        className="flex w-full cursor-pointer items-center gap-1.5 rounded px-2 py-1.5 text-left text-[13px] hover:bg-[#f2f2f2]"
+        className="flex w-full cursor-pointer items-center gap-1.5 rounded px-2 py-1.5 text-left text-[13px] hover:bg-surface-elevated"
         onClick={onDuplicate}
       >
         <Copy size={14} />
@@ -46,7 +46,7 @@ export function NodeContextMenu({
       </button>
       <button
         role="menuitem"
-        className="flex w-full cursor-pointer items-center gap-1.5 rounded px-2 py-1.5 text-left text-[13px] text-red-600 hover:bg-[#f2f2f2]"
+        className="flex w-full cursor-pointer items-center gap-1.5 rounded px-2 py-1.5 text-left text-[13px] text-red-600 hover:bg-surface-elevated"
         onClick={onDelete}
       >
         <Trash2 size={14} />
