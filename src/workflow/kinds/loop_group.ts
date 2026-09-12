@@ -24,13 +24,6 @@ function isRawNodeArray(value: unknown): value is Record<string, unknown>[] {
   return Array.isArray(value) && value.every((item) => isPlainObject(item));
 }
 
-function toBoolean(value: unknown): boolean | undefined {
-  if (typeof value === "boolean") return value;
-  if (value === "true") return true;
-  if (value === "false") return false;
-  return undefined;
-}
-
 export const loopGroupKind: NodeKind = {
   id: "loop_group",
   badge: "LOOP GROUP",
@@ -39,13 +32,18 @@ export const loopGroupKind: NodeKind = {
   fields: [
     { name: "until_bash", label: "Until bash", type: "text" },
     { name: "max_iterations", label: "Max iterations", type: "number", min: 0 },
-    { name: "fresh_context", label: "Fresh context", type: "select", options: ["true", "false"] },
-    // Best-effort, display-oriented view of the nested nodes: this is NOT a
-    // full nested-node editor (out of scope, see issue #10). Editing this
-    // field re-parses the JSON text back into `data.nodes` on save, so
-    // hand-edits are possible but unvalidated; malformed JSON is ignored and
-    // the previous value is kept (see `useMutations`/NodeInspector wiring).
-    { name: "nodes", label: "Nested nodes (JSON)", type: "textarea", mono: true },
+    { name: "fresh_context", label: "Fresh context", type: "boolean" },
+    // Read-only, best-effort JSON preview of the nested nodes: this is NOT a
+    // full nested-node editor (out of scope, see issue #10/#17). Two-way
+    // editing of a nested sub-DAG as JSON text is error-prone, so the field
+    // is marked `readOnly` and never writes back to `data.nodes`.
+    {
+      name: "nodes",
+      label: "Nested nodes (JSON, read-only)",
+      type: "textarea",
+      mono: true,
+      readOnly: true,
+    },
   ],
   preview: (data) => {
     const nodes = isRawNodeArray(data.nodes) ? data.nodes : [];
@@ -61,9 +59,7 @@ export const loopGroupKind: NodeKind = {
       ...(data.max_iterations !== undefined && data.max_iterations !== null
         ? { max_iterations: Number(data.max_iterations) }
         : {}),
-      ...(toBoolean(data.fresh_context) !== undefined
-        ? { fresh_context: toBoolean(data.fresh_context) }
-        : {}),
+      ...(typeof data.fresh_context === "boolean" ? { fresh_context: data.fresh_context } : {}),
       ...(isRawNodeArray(data.nodes) ? { nodes: data.nodes } : {}),
     },
   }),
@@ -75,7 +71,8 @@ export const loopGroupKind: NodeKind = {
       label: "Loop group",
       until_bash: loopGroup.until_bash as string | undefined,
       max_iterations: loopGroup.max_iterations as number | undefined,
-      fresh_context: toBoolean(loopGroup.fresh_context),
+      fresh_context:
+        typeof loopGroup.fresh_context === "boolean" ? loopGroup.fresh_context : undefined,
       nodes: isRawNodeArray(loopGroup.nodes) ? loopGroup.nodes : undefined,
     };
   },

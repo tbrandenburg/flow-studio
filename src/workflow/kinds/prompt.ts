@@ -53,6 +53,7 @@ export const promptKind: NodeKind = {
     { name: "agent", label: "Agent", type: "text" },
     { name: "agents", label: "Agents", type: "stringList" },
     { name: "effort", label: "Effort", type: "text" },
+    { name: "hooks", label: "Hooks", type: "record" },
     { name: "idle_timeout", label: "Idle timeout", type: "number", min: 0 },
     { name: "retry", label: "Retry", type: "number", min: 0 },
   ],

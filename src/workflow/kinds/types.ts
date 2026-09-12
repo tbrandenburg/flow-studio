@@ -10,6 +10,11 @@ export type FieldSpec =
       required?: boolean;
       placeholder?: string;
       mono?: boolean;
+      // When set, the textarea renders the value as a best-effort read-only
+      // preview (e.g. JSON) and does not call `onChange` on edit. Used for
+      // data shapes (like `loop_group.nodes`) that are structurally too
+      // complex for a two-way text editor (see issue #17).
+      readOnly?: boolean;
     }
   | { name: string; label: string; type: "number"; required?: boolean; min?: number; max?: number }
   | {
@@ -19,7 +24,9 @@ export type FieldSpec =
       required?: boolean;
       options: readonly string[];
     }
-  | { name: string; label: string; type: "stringList"; required?: boolean; placeholder?: string };
+  | { name: string; label: string; type: "stringList"; required?: boolean; placeholder?: string }
+  | { name: string; label: string; type: "boolean"; required?: boolean }
+  | { name: string; label: string; type: "record"; required?: boolean; placeholder?: string };
 
 export interface NodeKind {
   id: string;
