@@ -1,6 +1,7 @@
 import { cn } from "../lib/utils";
 import { useDnD } from "../dnd-context";
 import { NODE_KINDS } from "../workflow/kinds";
+import { NodeKindBadge } from "./NodeKindBadge";
 
 interface SidebarProps {
   open: boolean;
@@ -43,12 +44,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
           draggable
           onDragStart={(event) => onDragStart(event, kind.id)}
         >
-          <div
-            className="mb-1 inline-block rounded px-1.5 py-0.5 text-[10px] font-semibold tracking-wide text-white"
-            style={{ backgroundColor: `var(${kind.accentVar})` }}
-          >
-            {kind.badge}
-          </div>
+          <NodeKindBadge kind={kind} className="mb-1 block" />
           <div className="text-[#666]">{kind.description}</div>
         </div>
       ))}

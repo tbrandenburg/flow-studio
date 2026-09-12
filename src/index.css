@@ -11,8 +11,11 @@
   --color-node-prompt: #6366f1;
   --color-node-command: #38bdf8;
   --color-node-loop: #f59e0b;
+  --color-node-loop-group: #d97706;
   --color-node-approval: #ec4899;
   --color-node-wait: #a855f7;
+  --color-node-include: #14b8a6;
+  --color-node-unknown: #6b7280;
 }
 
 :root {

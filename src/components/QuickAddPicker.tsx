@@ -1,6 +1,7 @@
 import { useRef } from "react";
 import { NODE_KINDS } from "../workflow/kinds";
 import { usePopupDismissal } from "../hooks/usePopupDismissal";
+import { NodeKindBadge } from "./NodeKindBadge";
 
 export interface QuickAddPickerProps {
   position: { x: number; y: number };
@@ -37,12 +38,7 @@ export function QuickAddPicker({ position, onPick, onDismiss }: QuickAddPickerPr
           className="block w-full cursor-pointer rounded px-2 py-1.5 text-left text-[13px] hover:bg-[#f2f2f2]"
           onClick={() => onPick(kind.id)}
         >
-          <span
-            className="mr-1.5 inline-block rounded px-1.5 py-0.5 text-[10px] font-semibold tracking-wide text-white"
-            style={{ backgroundColor: `var(${kind.accentVar})` }}
-          >
-            {kind.badge}
-          </span>
+          <NodeKindBadge kind={kind} className="mr-1.5" />
           <span className="text-[#666]">{kind.description}</span>
         </button>
       ))}

@@ -10,7 +10,11 @@ describe("getKind", () => {
     expect(() => getKind("nope")).toThrow("Unknown node kind: nope");
   });
 
-  it("registers prompt last as the fallback kind", () => {
-    expect(NODE_KINDS.at(-1)?.id).toBe("prompt");
+  it("registers unknown last as the catch-all fallback kind", () => {
+    expect(NODE_KINDS.at(-1)?.id).toBe("unknown");
+  });
+
+  it("registers prompt second-to-last, just before the unknown fallback", () => {
+    expect(NODE_KINDS.at(-2)?.id).toBe("prompt");
   });
 });

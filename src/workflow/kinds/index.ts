@@ -1,30 +1,41 @@
 import { approvalKind } from "./approval";
 import { bashKind } from "./bash";
 import { commandKind } from "./command";
+import { includeKind } from "./include";
 import { loopKind } from "./loop";
+import { loopGroupKind } from "./loop_group";
 import { promptKind } from "./prompt";
+import { unknownKind } from "./unknown";
 import { waitKind } from "./wait";
 import type { NodeKind } from "./types";
 
 export type { FieldSpec, NodeKind } from "./types";
 export type { BashNodeData } from "./bash";
 export type { CommandNodeData } from "./command";
+export type { IncludeNodeData } from "./include";
 export type { LoopNodeData } from "./loop";
+export type { LoopGroupNodeData } from "./loop_group";
 export type { ApprovalNodeData } from "./approval";
 export type { WaitNodeData } from "./wait";
 export type { PromptNodeData } from "./prompt";
+export type { UnknownNodeData } from "./unknown";
 
 // Registry order matters: fromYaml is tried in this order when sniffing a
 // node's kind from its raw YAML shape. `prompt` has no discriminator key
-// of its own beyond the generic `prompt: string`, so it must stay last as
-// the fallback kind.
+// of its own beyond the generic `prompt: string`, so it must stay second
+// to last. `unknown` always matches any raw node and is the final,
+// catch-all fallback so an unsupported kind never blocks import — it must
+// stay last.
 export const NODE_KINDS: readonly NodeKind[] = [
   bashKind,
   commandKind,
   loopKind,
+  loopGroupKind,
   approvalKind,
   waitKind,
+  includeKind,
   promptKind,
+  unknownKind,
 ];
 
 export function getKind(id: string): NodeKind {
