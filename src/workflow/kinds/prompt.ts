@@ -10,14 +10,16 @@ const schema = z.object({
   output_format: z.string().optional(),
   allowed_tools: z.array(z.string()).optional(),
   denied_tools: z.array(z.string()).optional(),
-  mcp: z.array(z.string()).optional(),
+  mcp: z.string().optional(),
   skills: z.array(z.string()).optional(),
-  agent: z.string().optional(),
   agents: z.array(z.string()).optional(),
   effort: z.string().optional(),
-  // Simplified assumption: PreToolUse/PostToolUse-style hook map is a flat
-  // string->string record (hook name -> command). Document if real shape differs.
-  hooks: z.record(z.string(), z.string()).optional(),
+  // Archon's real `hooks` is a strict object keyed by ~21 SDK hook-event
+  // names, each an array of {matcher, response, timeout}. Fully vendoring
+  // that schema is out of scope (#12); widen to a lossless passthrough
+  // record instead (matches `with` in include.ts) so real structured hook
+  // configs round-trip without silent data loss.
+  hooks: z.record(z.string(), z.unknown()).optional(),
   idle_timeout: z.number().optional(),
   // Matches Archon's `stepRetryConfigSchema`. UI-less for now (no
   // structured-object FieldSpec yet), still round-trips losslessly.
@@ -34,13 +36,8 @@ function isStringArray(value: unknown): value is string[] {
   return Array.isArray(value) && value.every((item) => typeof item === "string");
 }
 
-function isStringRecord(value: unknown): value is Record<string, string> {
-  return (
-    typeof value === "object" &&
-    value !== null &&
-    !Array.isArray(value) &&
-    Object.values(value).every((item) => typeof item === "string")
-  );
+function isPlainObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
 export const promptKind: NodeKind = {
@@ -56,9 +53,8 @@ export const promptKind: NodeKind = {
     { name: "output_format", label: "Output format", type: "text" },
     { name: "allowed_tools", label: "Allowed tools", type: "stringList" },
     { name: "denied_tools", label: "Denied tools", type: "stringList" },
-    { name: "mcp", label: "MCP", type: "stringList" },
+    { name: "mcp", label: "MCP", type: "text" },
     { name: "skills", label: "Skills", type: "stringList" },
-    { name: "agent", label: "Agent", type: "text" },
     { name: "agents", label: "Agents", type: "stringList" },
     { name: "effort", label: "Effort", type: "text" },
     { name: "hooks", label: "Hooks", type: "record" },
@@ -79,12 +75,11 @@ export const promptKind: NodeKind = {
     ...(isStringArray(data.denied_tools) && data.denied_tools.length > 0
       ? { denied_tools: data.denied_tools }
       : {}),
-    ...(isStringArray(data.mcp) && data.mcp.length > 0 ? { mcp: data.mcp } : {}),
+    ...(data.mcp !== undefined && data.mcp !== "" ? { mcp: data.mcp } : {}),
     ...(isStringArray(data.skills) && data.skills.length > 0 ? { skills: data.skills } : {}),
-    ...(data.agent !== undefined && data.agent !== "" ? { agent: data.agent } : {}),
     ...(isStringArray(data.agents) && data.agents.length > 0 ? { agents: data.agents } : {}),
     ...(data.effort !== undefined && data.effort !== "" ? { effort: data.effort } : {}),
-    ...(isStringRecord(data.hooks) && Object.keys(data.hooks).length > 0
+    ...(isPlainObject(data.hooks) && Object.keys(data.hooks).length > 0
       ? { hooks: data.hooks }
       : {}),
     ...(data.idle_timeout !== undefined && data.idle_timeout !== null
@@ -104,12 +99,11 @@ export const promptKind: NodeKind = {
       output_format: raw.output_format as string | undefined,
       allowed_tools: isStringArray(raw.allowed_tools) ? raw.allowed_tools : undefined,
       denied_tools: isStringArray(raw.denied_tools) ? raw.denied_tools : undefined,
-      mcp: isStringArray(raw.mcp) ? raw.mcp : undefined,
+      mcp: raw.mcp as string | undefined,
       skills: isStringArray(raw.skills) ? raw.skills : undefined,
-      agent: raw.agent as string | undefined,
       agents: isStringArray(raw.agents) ? raw.agents : undefined,
       effort: raw.effort as string | undefined,
-      hooks: isStringRecord(raw.hooks) ? raw.hooks : undefined,
+      hooks: isPlainObject(raw.hooks) ? raw.hooks : undefined,
       idle_timeout: raw.idle_timeout as number | undefined,
       retry: raw.retry as
         | { max_attempts?: number; delay_ms?: number; on_error?: string }
