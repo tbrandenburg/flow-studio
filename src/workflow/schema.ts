@@ -22,13 +22,21 @@ export const workflowNodeSchema = z
   })
   .and(z.record(z.string(), z.unknown()));
 
-export const workflowDefinitionSchema = z.object({
-  name: z.string().min(1),
-  description: z.string().optional(),
-  provider: z.string().optional(),
-  model: z.string().optional(),
-  nodes: z.array(workflowNodeSchema),
-});
+// Archon's real `workflowBaseSchema` additionally defines many workflow-level
+// fields (modelReasoningEffort, webSearchMode, sandbox, tags, requires, ...)
+// that flow-studio does not model individually. `.passthrough()` keeps any
+// such unmodeled key intact on the parsed definition (rather than silently
+// stripping it, zod's default `.object()` behavior) so it can be re-emitted
+// unchanged on export; see `graphToDefinition` in serialize.ts.
+export const workflowDefinitionSchema = z
+  .object({
+    name: z.string().min(1),
+    description: z.string().min(1),
+    provider: z.string().optional(),
+    model: z.string().optional(),
+    nodes: z.array(workflowNodeSchema),
+  })
+  .loose();
 
 export type WorkflowNode = z.infer<typeof workflowNodeSchema>;
 export type WorkflowDefinition = z.infer<typeof workflowDefinitionSchema>;

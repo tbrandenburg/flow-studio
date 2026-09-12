@@ -85,6 +85,7 @@ describe("loop_group node full-file round-trip", () => {
   function fixtureWithLoopGroupNode(): WorkflowDefinition {
     return {
       name: "deliver",
+      description: "test fixture",
       nodes: [
         {
           id: "corrections",

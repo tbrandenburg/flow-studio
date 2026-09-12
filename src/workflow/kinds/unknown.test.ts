@@ -52,6 +52,7 @@ describe("unknown kind full-file round-trip", () => {
   function fixtureWithUnknownNode(): WorkflowDefinition {
     return {
       name: "deliver",
+      description: "test fixture",
       nodes: [
         {
           id: "node-fanout1",

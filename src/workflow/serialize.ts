@@ -8,9 +8,30 @@ export interface WorkflowMeta {
   description?: string;
   provider?: string;
   model?: string;
+  // Any workflow-level keys from the original parsed YAML that flow-studio
+  // doesn't model individually (e.g. Archon's `sandbox`, `tags`, `requires`,
+  // `modelReasoningEffort`, ...). Captured in `definitionToGraph` and
+  // re-emitted verbatim here so editing a workflow never silently drops
+  // fields flow-studio has no UI for. See `workflowDefinitionSchema`'s
+  // `.loose()` in schema.ts for the parse-side counterpart.
+  extra?: Record<string, unknown>;
 }
 
 const DEFAULT_META: WorkflowMeta = { name: "workflow" };
+
+// Keys handled explicitly elsewhere in this module; anything else on a
+// parsed `WorkflowDefinition` is an "extra" workflow-level field to preserve
+// verbatim through the graph round-trip.
+const KNOWN_DEFINITION_KEYS = new Set(["name", "description", "provider", "model", "nodes"]);
+
+function extraDefinitionFields(def: WorkflowDefinition): Record<string, unknown> {
+  const extra: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(def)) {
+    if (KNOWN_DEFINITION_KEYS.has(key)) continue;
+    extra[key] = value;
+  }
+  return extra;
+}
 
 function dependsOnFor(nodeId: string, edges: readonly Edge[]): string[] {
   return edges.filter((edge) => edge.target === nodeId).map((edge) => edge.source);
@@ -22,8 +43,11 @@ export function graphToDefinition(
   meta: WorkflowMeta = DEFAULT_META,
 ): WorkflowDefinition {
   return {
+    // Spread first so the explicit named fields below always win over any
+    // passthrough "extra" entry that happens to collide with a known key.
+    ...meta.extra,
     name: meta.name,
-    description: meta.description,
+    description: meta.description ?? "",
     provider: meta.provider,
     model: meta.model,
     nodes: nodes.map((node) => {
@@ -33,7 +57,6 @@ export function graphToDefinition(
       return {
         id: node.id,
         ...(dependsOn.length > 0 ? { depends_on: dependsOn } : {}),
-        ...(data.label !== undefined && data.label !== "" ? { label: data.label } : {}),
         ...(data.when !== undefined && data.when !== "" ? { when: data.when } : {}),
         ...(data.trigger_rule !== undefined ? { trigger_rule: data.trigger_rule } : {}),
         ...kind.toYaml(data),
@@ -98,6 +121,7 @@ function remapDuplicateIds(nodes: readonly WorkflowNode[]): string[] {
 export function definitionToGraph(def: WorkflowDefinition): {
   nodes: WorkflowFlowNode[];
   edges: Edge[];
+  extra: Record<string, unknown>;
 } {
   const finalIds = remapDuplicateIds(def.nodes);
 
@@ -130,5 +154,5 @@ export function definitionToGraph(def: WorkflowDefinition): {
     }));
   });
 
-  return { nodes, edges };
+  return { nodes, edges, extra: extraDefinitionFields(def) };
 }

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { TRIGGER_RULES, workflowNodeSchema } from "./schema";
+import { TRIGGER_RULES, workflowDefinitionSchema, workflowNodeSchema } from "./schema";
 
 describe("TRIGGER_RULES", () => {
   it("matches Archon's authoritative trigger rule set", () => {
@@ -23,5 +23,44 @@ describe("TRIGGER_RULES", () => {
   it("rejects the old, nonexistent any_success value", () => {
     const result = workflowNodeSchema.safeParse({ id: "n1", trigger_rule: "any_success" });
     expect(result.success).toBe(false);
+  });
+});
+
+describe("workflowDefinitionSchema", () => {
+  it("rejects a missing description (#29 — Archon requires a non-empty description)", () => {
+    const result = workflowDefinitionSchema.safeParse({ name: "wf", nodes: [] });
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects an empty-string description", () => {
+    const result = workflowDefinitionSchema.safeParse({
+      name: "wf",
+      description: "",
+      nodes: [],
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it("accepts a non-empty description", () => {
+    const result = workflowDefinitionSchema.safeParse({
+      name: "wf",
+      description: "does a thing",
+      nodes: [],
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it("preserves unmodeled workflow-level fields (e.g. sandbox, tags) instead of stripping them (#29)", () => {
+    const result = workflowDefinitionSchema.safeParse({
+      name: "wf",
+      description: "does a thing",
+      nodes: [],
+      sandbox: true,
+      tags: ["ci"],
+    });
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data).toMatchObject({ sandbox: true, tags: ["ci"] });
+    }
   });
 });

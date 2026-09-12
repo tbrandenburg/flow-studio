@@ -10,6 +10,7 @@ import type { WorkflowDefinition } from "../workflow/schema";
 function fixtureDefinition(): WorkflowDefinition {
   return {
     name: "ci-triage",
+    description: "test fixture",
     nodes: [
       { id: "node-a", prompt: "Summarise the failure." },
       { id: "node-b", bash: "npm test", timeout: 0, depends_on: ["node-a"] },

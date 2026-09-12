@@ -42,6 +42,8 @@ export interface RestoredState {
   edges: Edge[];
   name: string;
   description: string;
+  // See `WorkflowMeta.extra` in serialize.ts.
+  extra: Record<string, unknown>;
 }
 
 /**
@@ -58,13 +60,15 @@ export function restoreInitialState(): RestoredState {
       edges: initialEdges,
       name: DEFAULT_WORKFLOW_NAME,
       description: "",
+      extra: {},
     };
   }
-  const { nodes, edges } = definitionToGraph(def);
+  const { nodes, edges, extra } = definitionToGraph(def);
   return {
     nodes: layoutWithDagre(nodes, edges),
     edges,
     name: def.name,
     description: def.description ?? "",
+    extra,
   };
 }
