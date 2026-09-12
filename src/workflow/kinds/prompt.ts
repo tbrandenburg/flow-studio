@@ -19,7 +19,15 @@ const schema = z.object({
   // string->string record (hook name -> command). Document if real shape differs.
   hooks: z.record(z.string(), z.string()).optional(),
   idle_timeout: z.number().optional(),
-  retry: z.number().optional(),
+  // Matches Archon's `stepRetryConfigSchema`. UI-less for now (no
+  // structured-object FieldSpec yet), still round-trips losslessly.
+  retry: z
+    .object({
+      max_attempts: z.number().min(1).max(5).optional(),
+      delay_ms: z.number().min(1000).max(60000).optional(),
+      on_error: z.enum(["transient", "all"]).optional(),
+    })
+    .optional(),
 });
 
 function isStringArray(value: unknown): value is string[] {
@@ -55,7 +63,6 @@ export const promptKind: NodeKind = {
     { name: "effort", label: "Effort", type: "text" },
     { name: "hooks", label: "Hooks", type: "record" },
     { name: "idle_timeout", label: "Idle timeout", type: "number", min: 0 },
-    { name: "retry", label: "Retry", type: "number", min: 0 },
   ],
   preview: (data) => (typeof data.prompt === "string" ? data.prompt.split("\n")[0] : ""),
   toYaml: (data) => ({
@@ -83,7 +90,7 @@ export const promptKind: NodeKind = {
     ...(data.idle_timeout !== undefined && data.idle_timeout !== null
       ? { idle_timeout: Number(data.idle_timeout) }
       : {}),
-    ...(data.retry !== undefined && data.retry !== null ? { retry: Number(data.retry) } : {}),
+    ...(data.retry !== undefined && data.retry !== null ? { retry: data.retry } : {}),
   }),
   fromYaml: (raw) => {
     if (typeof raw.prompt !== "string") return null;
@@ -104,7 +111,9 @@ export const promptKind: NodeKind = {
       effort: raw.effort as string | undefined,
       hooks: isStringRecord(raw.hooks) ? raw.hooks : undefined,
       idle_timeout: raw.idle_timeout as number | undefined,
-      retry: raw.retry as number | undefined,
+      retry: raw.retry as
+        | { max_attempts?: number; delay_ms?: number; on_error?: string }
+        | undefined,
     };
   },
   schema,
