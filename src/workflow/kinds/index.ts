@@ -1,12 +1,15 @@
 import { approvalKind } from "./approval";
 import { bashKind } from "./bash";
 import { commandKind } from "./command";
+import { haltKind } from "./halt";
 import { includeKind } from "./include";
 import { loopKind } from "./loop";
 import { loopGroupKind } from "./loop_group";
 import { promptKind } from "./prompt";
+import { scriptKind } from "./script";
 import { unknownKind } from "./unknown";
 import { waitKind } from "./wait";
+import { workflowKind } from "./workflow";
 import type { NodeKind } from "./types";
 
 export type { FieldSpec, NodeKind } from "./types";
@@ -19,6 +22,9 @@ export type { ApprovalNodeData } from "./approval";
 export type { WaitNodeData } from "./wait";
 export type { PromptNodeData } from "./prompt";
 export type { UnknownNodeData } from "./unknown";
+export type { ScriptNodeData } from "./script";
+export type { HaltNodeData } from "./halt";
+export type { WorkflowKindNodeData } from "./workflow";
 
 // Registry order matters: fromYaml is tried in this order when sniffing a
 // node's kind from its raw YAML shape. `prompt` has no discriminator key
@@ -34,6 +40,9 @@ export const NODE_KINDS: readonly NodeKind[] = [
   approvalKind,
   waitKind,
   includeKind,
+  scriptKind,
+  haltKind,
+  workflowKind,
   promptKind,
   unknownKind,
 ];
