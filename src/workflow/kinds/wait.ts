@@ -2,15 +2,21 @@ import { z } from "zod";
 import type { WorkflowNodeData } from "../types";
 import type { NodeKind } from "./types";
 
-const WAIT_TYPES = ["event", "until", "attention", "duration_ms", "deadline_ms"] as const;
-
 const schema = z.object({
-  wait_type: z.enum(WAIT_TYPES).optional(),
-  value: z.string().optional(),
+  duration_ms: z.number().optional(),
+  until: z.string().optional(),
+  event: z.string().optional(),
+  deadline_ms: z.number().optional(),
+  attention: z.string().optional(),
 });
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function toNumber(value: unknown): number | undefined {
+  const num = Number(value);
+  return Number.isFinite(num) ? num : undefined;
 }
 
 export const waitKind: NodeKind = {
@@ -19,29 +25,55 @@ export const waitKind: NodeKind = {
   description: "Pause until a condition is met",
   accentVar: "--color-node-wait",
   fields: [
-    { name: "wait_type", label: "Wait on", type: "select", options: WAIT_TYPES },
-    { name: "value", label: "Value", type: "text" },
+    { name: "duration_ms", label: "Duration (ms)", type: "number" },
+    { name: "until", label: "Until (ISO timestamp)", type: "text" },
+    { name: "event", label: "Event", type: "text" },
+    { name: "deadline_ms", label: "Deadline (ms)", type: "number" },
+    { name: "attention", label: "Attention message", type: "text" },
   ],
-  preview: (data) =>
-    typeof data.wait_type === "string"
-      ? `${data.wait_type}${data.value ? `: ${data.value}` : ""}`
-      : "wait",
+  preview: (data) => {
+    if (typeof data.duration_ms === "number") return `duration_ms: ${data.duration_ms}`;
+    if (typeof data.until === "string" && data.until) return `until: ${data.until}`;
+    if (typeof data.event === "string" && data.event) return `event: ${data.event}`;
+    if (typeof data.attention === "string" && data.attention) return `attention: ${data.attention}`;
+    return "wait";
+  },
   toYaml: (data) => {
-    const waitType = data.wait_type as (typeof WAIT_TYPES)[number] | undefined;
-    if (!waitType) return { wait: {} };
-    return { wait: { [waitType]: data.value ?? "" } };
+    if (typeof data.duration_ms === "number") {
+      return { wait: { duration_ms: data.duration_ms } };
+    }
+    if (typeof data.until === "string" && data.until) {
+      return { wait: { until: data.until } };
+    }
+    if (typeof data.event === "string" && data.event) {
+      return { wait: { event: data.event, deadline_ms: data.deadline_ms } };
+    }
+    if (typeof data.attention === "string" && data.attention) {
+      return { wait: { attention: data.attention } };
+    }
+    return { wait: {} };
   },
   fromYaml: (raw) => {
     if (!isPlainObject(raw.wait)) return null;
     const wait = raw.wait;
-    const waitType = WAIT_TYPES.find((type) => type in wait);
-    if (!waitType) return { kind: "wait", label: "Wait" };
-    return {
-      kind: "wait",
-      label: "Wait",
-      wait_type: waitType,
-      value: String(wait[waitType]),
-    };
+    if ("duration_ms" in wait) {
+      return { kind: "wait", label: "Wait", duration_ms: toNumber(wait.duration_ms) };
+    }
+    if ("until" in wait) {
+      return { kind: "wait", label: "Wait", until: String(wait.until) };
+    }
+    if ("event" in wait) {
+      return {
+        kind: "wait",
+        label: "Wait",
+        event: String(wait.event),
+        deadline_ms: toNumber(wait.deadline_ms),
+      };
+    }
+    if ("attention" in wait) {
+      return { kind: "wait", label: "Wait", attention: String(wait.attention) };
+    }
+    return { kind: "wait", label: "Wait" };
   },
   schema,
 };
