@@ -34,13 +34,6 @@ function isStringArray(value: unknown): value is string[] {
   return Array.isArray(value) && value.every((item) => typeof item === "string");
 }
 
-function toBoolean(value: unknown): boolean | undefined {
-  if (typeof value === "boolean") return value;
-  if (value === "true") return true;
-  if (value === "false") return false;
-  return undefined;
-}
-
 export const loopKind: NodeKind = {
   id: "loop",
   badge: "LOOP",
@@ -54,8 +47,8 @@ export const loopKind: NodeKind = {
     { name: "until_bash", label: "Until bash", type: "text" },
     { name: "until_field", label: "Until field", type: "text" },
     { name: "gate_message", label: "Gate message", type: "text" },
-    { name: "fresh_context", label: "Fresh context", type: "select", options: ["true", "false"] },
-    { name: "interactive", label: "Interactive", type: "select", options: ["true", "false"] },
+    { name: "fresh_context", label: "Fresh context", type: "boolean" },
+    { name: "interactive", label: "Interactive", type: "boolean" },
     { name: "allowed_tools", label: "Allowed tools", type: "stringList" },
     { name: "effort", label: "Effort", type: "text" },
     { name: "idle_timeout", label: "Idle timeout", type: "number", min: 0 },
@@ -81,12 +74,8 @@ export const loopKind: NodeKind = {
       ...(data.gate_message !== undefined && data.gate_message !== ""
         ? { gate_message: data.gate_message }
         : {}),
-      ...(toBoolean(data.fresh_context) !== undefined
-        ? { fresh_context: toBoolean(data.fresh_context) }
-        : {}),
-      ...(toBoolean(data.interactive) !== undefined
-        ? { interactive: toBoolean(data.interactive) }
-        : {}),
+      ...(typeof data.fresh_context === "boolean" ? { fresh_context: data.fresh_context } : {}),
+      ...(typeof data.interactive === "boolean" ? { interactive: data.interactive } : {}),
     },
     ...(isStringArray(data.allowed_tools) && data.allowed_tools.length > 0
       ? { allowed_tools: data.allowed_tools }
@@ -116,8 +105,8 @@ export const loopKind: NodeKind = {
       until_bash: loop.until_bash as string | undefined,
       until_field: loop.until_field as string | undefined,
       gate_message: loop.gate_message as string | undefined,
-      fresh_context: toBoolean(loop.fresh_context),
-      interactive: toBoolean(loop.interactive),
+      fresh_context: typeof loop.fresh_context === "boolean" ? loop.fresh_context : undefined,
+      interactive: typeof loop.interactive === "boolean" ? loop.interactive : undefined,
       allowed_tools: isStringArray(raw.allowed_tools) ? raw.allowed_tools : undefined,
       effort: raw.effort as string | undefined,
       idle_timeout: raw.idle_timeout as number | undefined,

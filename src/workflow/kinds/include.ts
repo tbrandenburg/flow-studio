@@ -21,7 +21,13 @@ export const includeKind: NodeKind = {
   badge: "INCLUDE",
   description: "Run a named sub-workflow",
   accentVar: "--color-node-include",
-  fields: [{ name: "include", label: "Workflow", type: "text", required: true }],
+  // `fan_out` is boolean|string in real data; a clean single-type UI field
+  // isn't obvious without overengineering a union-type FieldSpec, so it
+  // remains UI-less for now (still round-trips losslessly, see issue #17).
+  fields: [
+    { name: "include", label: "Workflow", type: "text", required: true },
+    { name: "with", label: "With", type: "record" },
+  ],
   preview: (data) => (typeof data.include === "string" ? data.include : ""),
   toYaml: (data) => ({
     include: data.include as string,

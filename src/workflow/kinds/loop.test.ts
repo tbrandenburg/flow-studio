@@ -75,3 +75,12 @@ describe("loopKind.toYaml", () => {
     expect(yaml).toEqual(raw);
   });
 });
+
+describe("loopKind fields", () => {
+  it("exposes fresh_context and interactive as boolean", () => {
+    const freshContextField = loopKind.fields.find((f) => f.name === "fresh_context");
+    const interactiveField = loopKind.fields.find((f) => f.name === "interactive");
+    expect(freshContextField).toMatchObject({ type: "boolean" });
+    expect(interactiveField).toMatchObject({ type: "boolean" });
+  });
+});

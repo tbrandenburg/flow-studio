@@ -64,4 +64,40 @@ describe("FieldRenderer", () => {
     fireEvent.blur(input);
     expect(onChange).toHaveBeenCalledWith(["x", "y", "z"]);
   });
+
+  it("renders a boolean checkbox and calls onChange", () => {
+    const field: FieldSpec = { name: "fresh_context", label: "Fresh context", type: "boolean" };
+    const onChange = vi.fn();
+    render(<FieldRenderer field={field} value={false} onChange={onChange} />);
+    const checkbox = screen.getByRole("checkbox") as HTMLInputElement;
+    expect(checkbox.checked).toBe(false);
+    fireEvent.click(checkbox);
+    expect(onChange).toHaveBeenCalledWith(true);
+  });
+
+  it("renders a record editor parsing key: value lines on blur", () => {
+    const field: FieldSpec = { name: "with", label: "With", type: "record" };
+    const onChange = vi.fn();
+    render(<FieldRenderer field={field} value={{ foo: "bar" }} onChange={onChange} />);
+    const textarea = screen.getByDisplayValue("foo: bar");
+    fireEvent.change(textarea, { target: { value: "foo: bar\nbaz: qux" } });
+    fireEvent.blur(textarea);
+    expect(onChange).toHaveBeenCalledWith({ foo: "bar", baz: "qux" });
+  });
+
+  it("renders a read-only textarea that does not call onChange", () => {
+    const field: FieldSpec = {
+      name: "nodes",
+      label: "Nested nodes",
+      type: "textarea",
+      readOnly: true,
+    };
+    const onChange = vi.fn();
+    render(<FieldRenderer field={field} value={[{ prompt: "hi" }]} onChange={onChange} />);
+    const textarea = screen.getByRole("textbox") as HTMLTextAreaElement;
+    expect(textarea.value).toContain("prompt");
+    expect(textarea).toHaveAttribute("readonly");
+    fireEvent.change(textarea, { target: { value: "not json" } });
+    expect(onChange).not.toHaveBeenCalled();
+  });
 });

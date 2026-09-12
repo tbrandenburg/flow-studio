@@ -28,3 +28,10 @@ describe("approvalKind.toYaml", () => {
     expect(yaml).toEqual(raw);
   });
 });
+
+describe("approvalKind fields", () => {
+  it("exposes capture_response as boolean", () => {
+    const captureResponseField = approvalKind.fields.find((f) => f.name === "capture_response");
+    expect(captureResponseField).toMatchObject({ type: "boolean" });
+  });
+});

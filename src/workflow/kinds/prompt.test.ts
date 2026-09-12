@@ -49,3 +49,10 @@ describe("promptKind.toYaml", () => {
     expect(yaml).toEqual(raw);
   });
 });
+
+describe("promptKind fields", () => {
+  it("exposes a record field for hooks", () => {
+    const hooksField = promptKind.fields.find((f) => f.name === "hooks");
+    expect(hooksField).toMatchObject({ type: "record" });
+  });
+});
