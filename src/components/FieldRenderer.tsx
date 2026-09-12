@@ -1,7 +1,7 @@
 import type { FieldSpec } from "../workflow/kinds";
 
 const inputClass =
-  "nodrag w-full rounded border border-[#ddd] px-2 py-1 text-sm text-[#222] focus:border-[#888] focus:outline-none";
+  "nodrag w-full rounded border border-border px-2 py-1 text-sm text-text-primary focus:border-border-bright focus:outline-none";
 
 function stringListToText(value: unknown): string {
   return Array.isArray(value) ? value.join(", ") : "";

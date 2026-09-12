@@ -6,8 +6,8 @@ import { FieldRenderer } from "./FieldRenderer";
 const TRIGGER_RULE_OPTIONS = TRIGGER_RULES;
 
 const inputClass =
-  "nodrag w-full rounded border border-[#ddd] px-2 py-1 text-sm text-[#222] focus:border-[#888] focus:outline-none";
-const labelClass = "mb-1 block text-xs font-medium text-[#555]";
+  "nodrag w-full rounded border border-border px-2 py-1 text-sm text-text-primary focus:border-border-bright focus:outline-none";
+const labelClass = "mb-1 block text-xs font-medium text-text-secondary";
 
 export interface NodeInspectorProps {
   node: WorkflowFlowNode;
@@ -23,12 +23,12 @@ export function NodeInspector({ node, onFieldChange }: NodeInspectorProps) {
   };
 
   return (
-    <div className="h-full w-72 shrink-0 overflow-y-auto border-l border-[#ddd] bg-white p-3">
-      <h2 className="mb-3 text-sm font-semibold text-[#222]">{kind.badge}</h2>
+    <div className="h-full w-72 shrink-0 overflow-y-auto border-l border-border bg-surface-elevated p-3">
+      <h2 className="mb-3 text-sm font-semibold text-text-primary">{kind.badge}</h2>
 
       <div className="mb-3">
         <label className={labelClass}>ID</label>
-        <div className="rounded border border-[#eee] bg-[#f7f7f7] px-2 py-1 text-sm text-[#666]">
+        <div className="rounded border border-border bg-surface px-2 py-1 text-sm text-text-secondary">
           {data.id}
         </div>
       </div>

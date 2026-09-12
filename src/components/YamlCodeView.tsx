@@ -16,8 +16,8 @@ export function YamlCodeView({ mode, yaml }: YamlCodeViewProps) {
 
   const containerClass =
     mode === "full"
-      ? "absolute inset-0 z-10 bg-white overflow-auto"
-      : "h-full w-[380px] shrink-0 overflow-auto border-l border-[#ddd] bg-white";
+      ? "absolute inset-0 z-10 bg-surface-elevated overflow-auto"
+      : "h-full w-[380px] shrink-0 overflow-auto border-l border-border bg-surface-elevated";
 
   return (
     <div className={containerClass} aria-label="Workflow YAML preview">

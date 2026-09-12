@@ -26,7 +26,7 @@ export function QuickAddPicker({ position, onPick, onDismiss }: QuickAddPickerPr
   return (
     <div
       ref={ref}
-      className="absolute z-20 w-[220px] rounded-md border border-[#ddd] bg-white p-1 shadow-lg"
+      className="absolute z-20 w-[220px] rounded-md border border-border bg-surface-elevated p-1 shadow-lg"
       style={{ left, top }}
       role="menu"
       aria-label="Add node"
@@ -35,11 +35,11 @@ export function QuickAddPicker({ position, onPick, onDismiss }: QuickAddPickerPr
         <button
           key={kind.id}
           role="menuitem"
-          className="block w-full cursor-pointer rounded px-2 py-1.5 text-left text-[13px] hover:bg-[#f2f2f2]"
+          className="block w-full cursor-pointer rounded px-2 py-1.5 text-left text-[13px] hover:bg-surface-elevated"
           onClick={() => onPick(kind.id)}
         >
           <NodeKindBadge kind={kind} className="mr-1.5" />
-          <span className="text-[#666]">{kind.description}</span>
+          <span className="text-text-secondary">{kind.description}</span>
         </button>
       ))}
     </div>

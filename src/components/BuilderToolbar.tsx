@@ -1,4 +1,5 @@
 import { useRef, type ChangeEvent } from "react";
+import type { ColorMode } from "@xyflow/react";
 import type { YamlViewMode } from "./YamlCodeView";
 
 interface BuilderToolbarProps {
@@ -14,9 +15,12 @@ interface BuilderToolbarProps {
   onImportFile: (file: File) => void;
   onAutoLayout: () => void;
   importError: string | null;
+  colorMode: ColorMode;
+  onColorModeChange: (mode: ColorMode) => void;
 }
 
 const VIEW_MODES: YamlViewMode[] = ["hidden", "split", "full"];
+const COLOR_MODES: ColorMode[] = ["light", "dark", "system"];
 
 export function BuilderToolbar({
   workflowName,
@@ -31,6 +35,8 @@ export function BuilderToolbar({
   onImportFile,
   onAutoLayout,
   importError,
+  colorMode,
+  onColorModeChange,
 }: BuilderToolbarProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -44,34 +50,34 @@ export function BuilderToolbar({
     <div className="flex flex-col items-end gap-1.5">
       <div className="flex items-center gap-2">
         <input
-          className="w-40 rounded border border-[#ddd] bg-white px-2 py-1.5 text-sm"
+          className="w-40 rounded border border-border bg-surface-elevated px-2 py-1.5 text-sm"
           value={workflowName}
           onChange={(event) => onNameChange(event.target.value)}
           placeholder="workflow name"
           aria-label="Workflow name"
         />
         <input
-          className="w-52 rounded border border-[#ddd] bg-white px-2 py-1.5 text-sm"
+          className="w-52 rounded border border-border bg-surface-elevated px-2 py-1.5 text-sm"
           value={workflowDescription}
           onChange={(event) => onDescriptionChange(event.target.value)}
           placeholder="description"
           aria-label="Workflow description"
         />
         {hasUnsavedChanges ? (
-          <span className="rounded border border-[#ddd] bg-white px-2.5 py-1.5 text-sm text-[#666]">
+          <span className="rounded border border-border bg-surface-elevated px-2.5 py-1.5 text-sm text-text-secondary">
             ● Unsaved changes
           </span>
         ) : null}
       </div>
       <div className="flex items-center gap-2">
         <button
-          className="cursor-pointer rounded border border-[#ddd] bg-white px-2.5 py-1.5"
+          className="cursor-pointer rounded border border-border bg-surface-elevated px-2.5 py-1.5"
           onClick={onNew}
         >
           New
         </button>
         <button
-          className="cursor-pointer rounded border border-[#ddd] bg-white px-2.5 py-1.5"
+          className="cursor-pointer rounded border border-border bg-surface-elevated px-2.5 py-1.5"
           onClick={() => fileInputRef.current?.click()}
         >
           Import .yaml
@@ -85,24 +91,36 @@ export function BuilderToolbar({
           aria-label="Import workflow YAML file"
         />
         <button
-          className="cursor-pointer rounded border border-[#ddd] bg-white px-2.5 py-1.5"
+          className="cursor-pointer rounded border border-border bg-surface-elevated px-2.5 py-1.5"
           onClick={onExport}
         >
           Export .yaml
         </button>
         <button
-          className="cursor-pointer rounded border border-[#ddd] bg-white px-2.5 py-1.5"
+          className="cursor-pointer rounded border border-border bg-surface-elevated px-2.5 py-1.5"
           onClick={onAutoLayout}
         >
           Auto-layout
         </button>
         <select
-          className="cursor-pointer rounded border border-[#ddd] bg-white px-2 py-1.5 text-sm"
+          className="cursor-pointer rounded border border-border bg-surface-elevated px-2 py-1.5 text-sm"
           value={yamlViewMode}
           onChange={(event) => onYamlViewModeChange(event.target.value as YamlViewMode)}
           aria-label="YAML view mode"
         >
           {VIEW_MODES.map((mode) => (
+            <option key={mode} value={mode}>
+              {mode}
+            </option>
+          ))}
+        </select>
+        <select
+          className="cursor-pointer rounded border border-border bg-surface-elevated px-2 py-1.5 text-sm"
+          value={colorMode}
+          onChange={(event) => onColorModeChange(event.target.value as ColorMode)}
+          aria-label="Color mode"
+        >
+          {COLOR_MODES.map((mode) => (
             <option key={mode} value={mode}>
               {mode}
             </option>
