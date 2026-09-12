@@ -59,7 +59,7 @@ describe("serialize", () => {
     expect(nodeA?.depends_on).toBeUndefined();
   });
 
-  it("preserves a custom node label through definitionToGraph -> graphToDefinition", () => {
+  it("uses a custom node label for in-memory display but drops it on export", () => {
     const def: WorkflowDefinition = {
       name: "labeled",
       nodes: [{ id: "node-a", label: "My custom label", prompt: "Do a thing." }],
@@ -67,7 +67,7 @@ describe("serialize", () => {
     const { nodes, edges } = definitionToGraph(def);
     expect(nodes[0].data.label).toBe("My custom label");
     const roundTripped = graphToDefinition(nodes, edges, { name: def.name });
-    expect(roundTripped.nodes[0].label).toBe("My custom label");
+    expect(roundTripped.nodes[0].label).toBeUndefined();
   });
 
   it("omits label when empty/absent, falling back to the kind default in-memory", () => {
