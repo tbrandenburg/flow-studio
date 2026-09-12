@@ -1,8 +1,9 @@
 import { getKind } from "../workflow/kinds";
+import { TRIGGER_RULES } from "../workflow/schema";
 import type { WorkflowFlowNode } from "../workflow/types";
 import { FieldRenderer } from "./FieldRenderer";
 
-const TRIGGER_RULE_OPTIONS = ["all_success", "all_done", "any_success"] as const;
+const TRIGGER_RULE_OPTIONS = TRIGGER_RULES;
 
 const inputClass =
   "nodrag w-full rounded border border-[#ddd] px-2 py-1 text-sm text-[#222] focus:border-[#888] focus:outline-none";
