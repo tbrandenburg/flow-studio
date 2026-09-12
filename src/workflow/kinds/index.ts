@@ -1,6 +1,7 @@
 import { approvalKind } from "./approval";
 import { bashKind } from "./bash";
 import { commandKind } from "./command";
+import { includeKind } from "./include";
 import { loopKind } from "./loop";
 import { promptKind } from "./prompt";
 import { unknownKind } from "./unknown";
@@ -10,6 +11,7 @@ import type { NodeKind } from "./types";
 export type { FieldSpec, NodeKind } from "./types";
 export type { BashNodeData } from "./bash";
 export type { CommandNodeData } from "./command";
+export type { IncludeNodeData } from "./include";
 export type { LoopNodeData } from "./loop";
 export type { ApprovalNodeData } from "./approval";
 export type { WaitNodeData } from "./wait";
@@ -28,6 +30,7 @@ export const NODE_KINDS: readonly NodeKind[] = [
   loopKind,
   approvalKind,
   waitKind,
+  includeKind,
   promptKind,
   unknownKind,
 ];
