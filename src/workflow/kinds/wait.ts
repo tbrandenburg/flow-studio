@@ -2,7 +2,7 @@ import { z } from "zod";
 import type { WorkflowNodeData } from "../types";
 import type { NodeKind } from "./types";
 
-const WAIT_TYPES = ["event", "until", "attention", "duration_ms"] as const;
+const WAIT_TYPES = ["event", "until", "attention", "duration_ms", "deadline_ms"] as const;
 
 const schema = z.object({
   wait_type: z.enum(WAIT_TYPES).optional(),
