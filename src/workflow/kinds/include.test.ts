@@ -29,6 +29,17 @@ describe("includeKind.fromYaml", () => {
   it("returns null when include key is missing", () => {
     expect(includeKind.fromYaml({})).toBeNull();
   });
+
+  it("parses a structured (real Archon) fan_out object without throwing (#25)", () => {
+    const structuredFanOut = { items: "$.items", as: "x", max_parallel: 2, join: true };
+    const result = includeKind.fromYaml({
+      include: "sub-workflow",
+      fan_out: structuredFanOut,
+    });
+    expect(result?.fan_out).toEqual(structuredFanOut);
+    const validated = includeKind.schema.safeParse(result);
+    expect(validated.success).toBe(true);
+  });
 });
 
 describe("includeKind.toYaml", () => {
@@ -51,6 +62,17 @@ describe("includeKind.toYaml", () => {
     const parsed = includeKind.fromYaml({ include: "sub-workflow" });
     const yaml = includeKind.toYaml(parsed as never);
     expect(yaml).toEqual({ include: "sub-workflow" });
+  });
+
+  it("round-trips a structured fan_out object losslessly", () => {
+    const structuredFanOut = { items: "$.items", as: "x", max_parallel: 2, join: true };
+    const parsed = includeKind.fromYaml({
+      include: "sub-workflow",
+      fan_out: structuredFanOut,
+    });
+    expect(parsed).not.toBeNull();
+    const yaml = includeKind.toYaml(parsed as never);
+    expect(yaml).toEqual({ include: "sub-workflow", fan_out: structuredFanOut });
   });
 });
 
@@ -79,14 +101,14 @@ describe("include node full-file round-trip", () => {
           id: "run-sub-workflow",
           include: "some-workflow-name",
           with: { branch: "feature/x", reviewer: "alice" },
-          fan_out: true,
+          fan_out: { items: "$.items", as: "x", max_parallel: 2, join: true },
           depends_on: [],
         },
       ],
     };
   }
 
-  it("imports and round-trips an include node losslessly", () => {
+  it("imports and round-trips an include node with a structured fan_out losslessly (#25)", () => {
     const def = fixtureWithIncludeNode();
     const yaml = toYaml(def);
     const parsed = fromYaml(yaml);
@@ -96,7 +118,7 @@ describe("include node full-file round-trip", () => {
       id: "run-sub-workflow",
       include: "some-workflow-name",
       with: { branch: "feature/x", reviewer: "alice" },
-      fan_out: true,
+      fan_out: { items: "$.items", as: "x", max_parallel: 2, join: true },
     });
   });
 });
