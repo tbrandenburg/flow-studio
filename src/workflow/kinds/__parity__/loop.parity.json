@@ -1,0 +1,21 @@
+{
+  "kind": "loop",
+  "archonSource": "packages/workflows/src/schemas/loop.ts (loopControlSchema + loopNodeConfigSchema) plus dag-node.ts aiOnly node-level siblings",
+  "fields": [
+    { "name": "command", "optional": true, "type": "string" },
+    { "name": "prompt", "optional": true, "type": "string" },
+    { "name": "max_iterations", "optional": true, "type": "number" },
+    { "name": "until", "optional": true, "type": "string" },
+    { "name": "until_bash", "optional": true, "type": "string" },
+    { "name": "until_field", "optional": true, "type": "string" },
+    { "name": "fresh_context", "optional": true, "type": "boolean" },
+    { "name": "gate_message", "optional": true, "type": "string" },
+    { "name": "interactive", "optional": true, "type": "boolean" },
+    { "name": "allowed_tools", "optional": true, "type": "array" },
+    { "name": "effort", "optional": true, "type": "string" },
+    { "name": "idle_timeout", "optional": true, "type": "number" },
+    { "name": "model", "optional": true, "type": "string" },
+    { "name": "output_format", "optional": true, "type": "string" },
+    { "name": "output_type", "optional": true, "type": "string" }
+  ]
+}

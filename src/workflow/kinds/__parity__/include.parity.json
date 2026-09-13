@@ -1,0 +1,9 @@
+{
+  "kind": "include",
+  "archonSource": "packages/workflows/src/schemas/dag-node.ts (includeDirectiveSchema + fanOutConfigSchema)",
+  "fields": [
+    { "name": "include", "optional": false, "type": "string" },
+    { "name": "with", "optional": true, "type": "record" },
+    { "name": "fan_out", "optional": true, "type": "unknown" }
+  ]
+}

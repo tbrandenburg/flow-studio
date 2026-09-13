@@ -1,0 +1,11 @@
+{
+  "kind": "wait",
+  "archonSource": "packages/workflows/src/schemas/dag-node.ts (waitConfigSchema union of 4 mutually-exclusive variants; flow-studio flattens all variant fields to optional, application logic in fromYaml/toYaml enforces the mutual exclusivity that Archon's union type enforces structurally)",
+  "fields": [
+    { "name": "duration_ms", "optional": true, "type": "number" },
+    { "name": "until", "optional": true, "type": "string" },
+    { "name": "event", "optional": true, "type": "string" },
+    { "name": "deadline_ms", "optional": true, "type": "number" },
+    { "name": "attention", "optional": true, "type": "string" }
+  ]
+}
