@@ -1,4 +1,4 @@
-import { Background, Controls, MiniMap, ReactFlow, type NodeTypes } from "@xyflow/react";
+import { Background, Controls, MiniMap, Panel, ReactFlow, type NodeTypes } from "@xyflow/react";
 
 import "@xyflow/react/dist/style.css";
 
@@ -64,50 +64,7 @@ export function WorkflowBuilder() {
 
   return (
     <div className="relative flex h-full w-full">
-      <button
-        className="hidden absolute top-2 left-2 z-[5] cursor-pointer rounded border border-border bg-surface-elevated px-2.5 py-1.5 max-md:block"
-        onClick={() => setPaletteOpen((open) => !open)}
-        aria-label="Toggle node palette"
-      >
-        ☰ Nodes
-      </button>
       <Sidebar open={paletteOpen} onClose={() => setPaletteOpen(false)} />
-      <div className="absolute top-2 right-2 z-[5] flex flex-col items-end gap-1.5">
-        <BuilderToolbar
-          workflowName={workflowName}
-          workflowDescription={workflowDescription}
-          onNameChange={setWorkflowName}
-          onDescriptionChange={setWorkflowDescription}
-          yamlViewMode={yamlViewMode}
-          onYamlViewModeChange={setYamlViewMode}
-          hasUnsavedChanges={hasUnsavedChanges}
-          onNew={onNew}
-          onExport={onExport}
-          onImportFile={onImportFile}
-          onAutoLayout={onAutoLayout}
-          importError={importError}
-          colorMode={colorMode}
-          onColorModeChange={setColorMode}
-        />
-        <div className="flex items-center gap-2">
-          <button
-            className="cursor-pointer rounded border border-border bg-surface-elevated px-2.5 py-1.5 disabled:cursor-not-allowed disabled:opacity-50"
-            onClick={onUndo}
-            disabled={!canUndo}
-            aria-label="Undo"
-          >
-            Undo
-          </button>
-          <button
-            className="cursor-pointer rounded border border-border bg-surface-elevated px-2.5 py-1.5 disabled:cursor-not-allowed disabled:opacity-50"
-            onClick={onRedo}
-            disabled={!canRedo}
-            aria-label="Redo"
-          >
-            Redo
-          </button>
-        </div>
-      </div>
       <div className="flex min-w-0 flex-1">
         <div className="min-w-0 flex-1" ref={wrapperRef}>
           <ReactFlow
@@ -130,6 +87,51 @@ export function WorkflowBuilder() {
             <Background />
             <MiniMap />
             <Controls />
+            <Panel position="top-left" className="hidden max-md:block">
+              <button
+                className="cursor-pointer rounded border border-border bg-surface-elevated px-2.5 py-1.5"
+                onClick={() => setPaletteOpen((open) => !open)}
+                aria-label="Toggle node palette"
+              >
+                ☰ Nodes
+              </button>
+            </Panel>
+            <Panel position="top-right" className="flex flex-col items-end gap-1.5">
+              <BuilderToolbar
+                workflowName={workflowName}
+                workflowDescription={workflowDescription}
+                onNameChange={setWorkflowName}
+                onDescriptionChange={setWorkflowDescription}
+                yamlViewMode={yamlViewMode}
+                onYamlViewModeChange={setYamlViewMode}
+                hasUnsavedChanges={hasUnsavedChanges}
+                onNew={onNew}
+                onExport={onExport}
+                onImportFile={onImportFile}
+                onAutoLayout={onAutoLayout}
+                importError={importError}
+                colorMode={colorMode}
+                onColorModeChange={setColorMode}
+              />
+              <div className="flex items-center gap-2">
+                <button
+                  className="cursor-pointer rounded border border-border bg-surface-elevated px-2.5 py-1.5 text-text-primary disabled:cursor-not-allowed disabled:opacity-50"
+                  onClick={onUndo}
+                  disabled={!canUndo}
+                  aria-label="Undo"
+                >
+                  Undo
+                </button>
+                <button
+                  className="cursor-pointer rounded border border-border bg-surface-elevated px-2.5 py-1.5 text-text-primary disabled:cursor-not-allowed disabled:opacity-50"
+                  onClick={onRedo}
+                  disabled={!canRedo}
+                  aria-label="Redo"
+                >
+                  Redo
+                </button>
+              </div>
+            </Panel>
           </ReactFlow>
         </div>
         {yamlViewMode === "split" ? <YamlCodeView mode={yamlViewMode} yaml={yamlText} /> : null}

@@ -50,14 +50,14 @@ export function BuilderToolbar({
     <div className="flex flex-col items-end gap-1.5">
       <div className="flex items-center gap-2">
         <input
-          className="w-40 rounded border border-border bg-surface-elevated px-2 py-1.5 text-sm"
+          className="w-40 rounded border border-border bg-surface-elevated px-2 py-1.5 text-sm text-text-primary"
           value={workflowName}
           onChange={(event) => onNameChange(event.target.value)}
           placeholder="workflow name"
           aria-label="Workflow name"
         />
         <input
-          className="w-52 rounded border border-border bg-surface-elevated px-2 py-1.5 text-sm"
+          className="w-52 rounded border border-border bg-surface-elevated px-2 py-1.5 text-sm text-text-primary"
           value={workflowDescription}
           onChange={(event) => onDescriptionChange(event.target.value)}
           placeholder="description"
