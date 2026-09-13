@@ -16,6 +16,7 @@ describe("loopKind.fromYaml", () => {
         gate_message: "confirm?",
         fresh_context: true,
         interactive: false,
+        signal_completes: true,
       },
     });
     expect(result).toMatchObject({
@@ -26,6 +27,7 @@ describe("loopKind.fromYaml", () => {
       gate_message: "confirm?",
       fresh_context: true,
       interactive: false,
+      signal_completes: true,
     });
   });
 
@@ -61,6 +63,7 @@ describe("loopKind.toYaml", () => {
         gate_message: "confirm?",
         fresh_context: true,
         interactive: false,
+        signal_completes: true,
       },
       allowed_tools: ["bash"],
       effort: "high",
@@ -77,10 +80,12 @@ describe("loopKind.toYaml", () => {
 });
 
 describe("loopKind fields", () => {
-  it("exposes fresh_context and interactive as boolean", () => {
+  it("exposes fresh_context, interactive, and signal_completes as boolean", () => {
     const freshContextField = loopKind.fields.find((f) => f.name === "fresh_context");
     const interactiveField = loopKind.fields.find((f) => f.name === "interactive");
+    const signalCompletesField = loopKind.fields.find((f) => f.name === "signal_completes");
     expect(freshContextField).toMatchObject({ type: "boolean" });
     expect(interactiveField).toMatchObject({ type: "boolean" });
+    expect(signalCompletesField).toMatchObject({ type: "boolean" });
   });
 });

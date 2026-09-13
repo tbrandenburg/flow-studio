@@ -3,6 +3,8 @@
   "archonSource": "packages/workflows/src/schemas/dag-node.ts (approvalConfigSchema)",
   "fields": [
     { "name": "message", "optional": true, "type": "string" },
-    { "name": "capture_response", "optional": true, "type": "boolean" }
+    { "name": "capture_response", "optional": true, "type": "boolean" },
+    { "name": "decisions", "optional": true, "type": "array" },
+    { "name": "on_reject", "optional": true, "type": "record" }
   ]
 }

@@ -5,6 +5,8 @@
     { "name": "script", "optional": false, "type": "string" },
     { "name": "runtime", "optional": true, "type": "enum", "values": ["bun", "uv"] },
     { "name": "deps", "optional": true, "type": "array" },
-    { "name": "timeout", "optional": true, "type": "number" }
+    { "name": "timeout", "optional": true, "type": "number" },
+    { "name": "on_timeout", "optional": true, "type": "literal" },
+    { "name": "with", "optional": true, "type": "record" }
   ]
 }
