@@ -43,6 +43,7 @@ export const loopGroupKind: NodeKind = {
       type: "textarea",
       mono: true,
       readOnly: true,
+      defaultValue: [],
     },
   ],
   preview: (data) => {

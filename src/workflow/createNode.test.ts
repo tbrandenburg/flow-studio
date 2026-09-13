@@ -43,3 +43,16 @@ describe("createFlowNode", () => {
     expect(node.id).toMatch(/^node-/);
   });
 });
+
+describe("createNodeData - fresh nodes pass their own schema (issue #38)", () => {
+  it.each(["loop_group", "unknown"])(
+    `"%s" produces data that passes its own schema with zero issues`,
+    (kindId) => {
+      const kind = NODE_KINDS.find((k) => k.id === kindId);
+      if (!kind) throw new Error(`kind "${kindId}" not found`);
+      const data = createNodeData(kindId);
+      const result = kind.schema.safeParse(data);
+      expect(result.success).toBe(true);
+    },
+  );
+});

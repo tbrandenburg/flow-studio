@@ -10,6 +10,7 @@ function titleCase(text: string): string {
 }
 
 function defaultFieldValue(field: FieldSpec): unknown {
+  if (field.defaultValue !== undefined) return field.defaultValue;
   if (field.type === "stringList") return [];
   if (
     field.type === "number" ||

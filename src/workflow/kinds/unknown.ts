@@ -8,7 +8,7 @@ import type { NodeKind } from "./types";
 const COMMON_FIELDS = ["id", "depends_on", "label", "when", "trigger_rule"] as const;
 
 const schema = z.object({
-  raw: z.record(z.string(), z.unknown()),
+  raw: z.record(z.string(), z.unknown()).optional(),
 });
 
 function stripCommonFields(raw: Record<string, unknown>): Record<string, unknown> {
