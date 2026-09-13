@@ -2,7 +2,6 @@ import { useCallback, useMemo, useRef, useState } from "react";
 import {
   addEdge,
   type Edge,
-  type EdgeMouseHandler,
   type NodeMouseHandler,
   type OnConnect,
 } from "@xyflow/react";
@@ -21,7 +20,7 @@ interface ContextMenuState {
 }
 
 /**
- * Adds pane-level interaction wiring (edge styling/toggling, connect,
+ * Adds pane-level interaction wiring (edge styling, connect,
  * double-click quick-add, right-click context menu) on top of
  * useWorkflowState's data model. WorkflowBuilder consumes this hook and
  * only renders JSX from the returned values, keeping the component file
@@ -53,19 +52,6 @@ export function useWorkflowCanvas() {
     [setEdges],
   );
 
-  const onEdgeDoubleClick: EdgeMouseHandler = useCallback(
-    (_event, edge) => {
-      setEdges((currentEdges) =>
-        currentEdges.map((currentEdge): Edge =>
-          currentEdge.id === edge.id
-            ? { ...currentEdge, animated: !currentEdge.animated }
-            : currentEdge,
-        ),
-      );
-    },
-    [setEdges],
-  );
-
   const onPaneClick = useCallback(
     (event: React.MouseEvent) => {
       const click: ClickPoint = { x: event.clientX, y: event.clientY, time: Date.now() };
@@ -93,7 +79,6 @@ export function useWorkflowCanvas() {
     wrapperRef,
     styledEdges,
     onConnect,
-    onEdgeDoubleClick,
     onPaneClick,
     onNodeContextMenu,
     quickAdd,

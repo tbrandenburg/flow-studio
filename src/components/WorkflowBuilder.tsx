@@ -23,7 +23,6 @@ export function WorkflowBuilder() {
     onNodesChange,
     onEdgesChange,
     onConnect,
-    onEdgeDoubleClick,
     onNodeClick,
     onPaneClick,
     onNodeContextMenu,
@@ -75,7 +74,6 @@ export function WorkflowBuilder() {
             edges={styledEdges}
             onEdgesChange={onEdgesChange}
             onConnect={onConnect}
-            onEdgeDoubleClick={onEdgeDoubleClick}
             onNodeClick={onNodeClick}
             onPaneClick={onPaneClick}
             onNodeContextMenu={onNodeContextMenu}
