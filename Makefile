@@ -20,7 +20,7 @@ build: lint
 	npm run build
 
 clean:
-	rm -rf dist dist-ssr node_modules/.tmp *.tsbuildinfo
+	rm -rf dist dist-ssr node_modules *.tsbuildinfo
 
 run: install
 	npm run dev

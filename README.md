@@ -75,7 +75,7 @@ make format   # Install dependencies if needed, then format
 make test     # Install dependencies if needed, then run unit tests
 make build    # Install, lint, and build for production
 make run      # Install dependencies if needed, then start Vite
-make clean    # Remove build output and TypeScript build caches
+make clean    # Remove build output, TypeScript build caches, and node_modules
 make release BUMP=patch|minor|major  # Test, build, bump version, tag, and publish a GitHub release
 ```
 
