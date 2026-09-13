@@ -11,7 +11,14 @@ function titleCase(text: string): string {
 
 function defaultFieldValue(field: FieldSpec): unknown {
   if (field.type === "stringList") return [];
-  if (field.type === "number") return undefined;
+  if (
+    field.type === "number" ||
+    field.type === "select" ||
+    field.type === "record" ||
+    field.type === "boolean"
+  ) {
+    return undefined;
+  }
   return "";
 }
 
