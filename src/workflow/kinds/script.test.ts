@@ -14,6 +14,8 @@ describe("scriptKind.fromYaml", () => {
       runtime: undefined,
       deps: undefined,
       timeout: undefined,
+      on_timeout: undefined,
+      with: undefined,
     });
   });
 
@@ -27,6 +29,16 @@ describe("scriptKind.fromYaml", () => {
     expect(result?.runtime).toBe("bun");
     expect(result?.deps).toEqual(["typescript"]);
     expect(result?.timeout).toBe(5000);
+  });
+
+  it("parses on_timeout and with", () => {
+    const result = scriptKind.fromYaml({
+      script: "build.ts",
+      on_timeout: "skip",
+      with: { input: "value" },
+    });
+    expect(result?.on_timeout).toBe("skip");
+    expect(result?.with).toEqual({ input: "value" });
   });
 
   it("returns null when script key is missing", () => {
@@ -53,6 +65,21 @@ describe("scriptKind.toYaml", () => {
       runtime: "uv",
       deps: ["typescript"],
       timeout: 5000,
+    });
+  });
+
+  it("round-trips on_timeout and with", () => {
+    const parsed = scriptKind.fromYaml({
+      script: "build.ts",
+      on_timeout: "skip",
+      with: { input: "value" },
+    });
+    expect(parsed).not.toBeNull();
+    const yaml = scriptKind.toYaml(parsed as never);
+    expect(yaml).toEqual({
+      script: "build.ts",
+      on_timeout: "skip",
+      with: { input: "value" },
     });
   });
 

@@ -3,6 +3,7 @@
   "archonSource": "packages/workflows/src/schemas/dag-node.ts (bashExecAuthoringSchema; wire key is 'bash', flow-studio's internal field name is 'script')",
   "fields": [
     { "name": "script", "optional": false, "type": "string" },
-    { "name": "timeout", "optional": true, "type": "number" }
+    { "name": "timeout", "optional": true, "type": "number" },
+    { "name": "on_timeout", "optional": true, "type": "literal" }
   ]
 }

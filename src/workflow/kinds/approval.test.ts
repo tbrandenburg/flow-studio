@@ -12,11 +12,44 @@ describe("approvalKind.fromYaml", () => {
     });
     expect(result).toMatchObject({ message: "ok?", capture_response: true });
   });
+
+  it("parses decisions and on_reject", () => {
+    const result = approvalKind.fromYaml({
+      approval: {
+        message: "ok?",
+        decisions: [{ label: "approve" }, { label: "reject" }],
+        on_reject: { notify: "slack" },
+      },
+    });
+    expect(result).toMatchObject({
+      decisions: [{ label: "approve" }, { label: "reject" }],
+      on_reject: { notify: "slack" },
+    });
+  });
 });
 
 describe("approvalKind.toYaml", () => {
   it("round-trips capture_response", () => {
     const raw = { approval: { message: "ok?", capture_response: true } };
+    const parsed = approvalKind.fromYaml(raw);
+    expect(parsed).not.toBeNull();
+    const yaml = approvalKind.toYaml({
+      id: "n1",
+      kind: "approval",
+      label: "Approval",
+      ...parsed,
+    } as never);
+    expect(yaml).toEqual(raw);
+  });
+
+  it("round-trips decisions and on_reject", () => {
+    const raw = {
+      approval: {
+        message: "ok?",
+        decisions: [{ label: "approve" }, { label: "reject" }],
+        on_reject: { notify: "slack" },
+      },
+    };
     const parsed = approvalKind.fromYaml(raw);
     expect(parsed).not.toBeNull();
     const yaml = approvalKind.toYaml({

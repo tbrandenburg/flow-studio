@@ -11,6 +11,7 @@
     { "name": "fresh_context", "optional": true, "type": "boolean" },
     { "name": "gate_message", "optional": true, "type": "string" },
     { "name": "interactive", "optional": true, "type": "boolean" },
+    { "name": "signal_completes", "optional": true, "type": "boolean" },
     { "name": "allowed_tools", "optional": true, "type": "array" },
     { "name": "effort", "optional": true, "type": "string" },
     { "name": "idle_timeout", "optional": true, "type": "number" },

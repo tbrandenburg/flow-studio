@@ -11,6 +11,9 @@ import type { NodeKind } from "./types";
 const schema = z.object({
   command: z.string().optional(),
   prompt: z.string().optional(),
+  // Archon's `loopNodeConfigSchema` makes `max_iterations` required;
+  // flow-studio keeps it optional (documented divergence, see issue #33)
+  // since tightening it would be a breaking canvas UX change.
   max_iterations: z.number().optional(),
   until: z.string().optional(),
   until_bash: z.string().optional(),
@@ -18,6 +21,7 @@ const schema = z.object({
   fresh_context: z.boolean().optional(),
   gate_message: z.string().optional(),
   interactive: z.boolean().optional(),
+  signal_completes: z.boolean().optional(),
   allowed_tools: z.array(z.string()).optional(),
   effort: z.string().optional(),
   idle_timeout: z.number().optional(),
@@ -49,6 +53,7 @@ export const loopKind: NodeKind = {
     { name: "gate_message", label: "Gate message", type: "text" },
     { name: "fresh_context", label: "Fresh context", type: "boolean" },
     { name: "interactive", label: "Interactive", type: "boolean" },
+    { name: "signal_completes", label: "Signal completes", type: "boolean" },
     { name: "allowed_tools", label: "Allowed tools", type: "stringList" },
     { name: "effort", label: "Effort", type: "text" },
     { name: "idle_timeout", label: "Idle timeout", type: "number", min: 0 },
@@ -76,6 +81,9 @@ export const loopKind: NodeKind = {
         : {}),
       ...(typeof data.fresh_context === "boolean" ? { fresh_context: data.fresh_context } : {}),
       ...(typeof data.interactive === "boolean" ? { interactive: data.interactive } : {}),
+      ...(typeof data.signal_completes === "boolean"
+        ? { signal_completes: data.signal_completes }
+        : {}),
     },
     ...(isStringArray(data.allowed_tools) && data.allowed_tools.length > 0
       ? { allowed_tools: data.allowed_tools }
@@ -107,6 +115,8 @@ export const loopKind: NodeKind = {
       gate_message: loop.gate_message as string | undefined,
       fresh_context: typeof loop.fresh_context === "boolean" ? loop.fresh_context : undefined,
       interactive: typeof loop.interactive === "boolean" ? loop.interactive : undefined,
+      signal_completes:
+        typeof loop.signal_completes === "boolean" ? loop.signal_completes : undefined,
       allowed_tools: isStringArray(raw.allowed_tools) ? raw.allowed_tools : undefined,
       effort: raw.effort as string | undefined,
       idle_timeout: raw.idle_timeout as number | undefined,
