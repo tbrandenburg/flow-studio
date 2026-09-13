@@ -68,7 +68,9 @@ function deepRewriteStrings(value: unknown, rewrite: (str: string) => string): u
 function rewriteOutputRefs(node: WorkflowNode, idMap: Map<string, string>): WorkflowNode {
   if (idMap.size === 0) return node;
   const rewrite = (str: string): string =>
-    str.replace(refPattern(), (match, id: string) => (idMap.has(id) ? `$${idMap.get(id)}.` : match));
+    str.replace(refPattern(), (match, id: string) =>
+      idMap.has(id) ? `$${idMap.get(id)}.` : match,
+    );
   return deepRewriteStrings(node, rewrite) as WorkflowNode;
 }
 
@@ -141,8 +143,7 @@ function expandIncludeNode(
   const finalNodes = namespaced.map((n) => (entryIds.has(n.id) ? attachParentEdge(n, node) : n));
 
   const returns = (node as Record<string, unknown>).returns;
-  const primarySinkId =
-    typeof returns === "string" ? `${node.id}__${returns}` : sinks[0]?.id;
+  const primarySinkId = typeof returns === "string" ? `${node.id}__${returns}` : sinks[0]?.id;
 
   return {
     subgraph: { nodes: finalNodes, sinkIds: sinks.map((n) => n.id), primarySinkId },
@@ -198,7 +199,10 @@ function expandNodeList(
 // depends_on / `$id.output` refs so the flattened graph is self-consistent.
 // Unresolved targets, cycles, and depth overflows are reported as typed
 // issues rather than thrown, alongside the best-effort expanded definition.
-export function expandIncludes(definition: WorkflowDefinition, workflows: WorkflowMap): ExpandResult {
+export function expandIncludes(
+  definition: WorkflowDefinition,
+  workflows: WorkflowMap,
+): ExpandResult {
   const { nodes, issues } = expandNodeList(definition.nodes, workflows, [definition.name], 1);
   return { definition: { ...definition, nodes }, issues };
 }

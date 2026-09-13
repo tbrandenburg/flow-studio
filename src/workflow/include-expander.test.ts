@@ -1,9 +1,5 @@
 import { describe, expect, it } from "vitest";
-import {
-  expandIncludes,
-  INCLUDE_MAX_DEPTH,
-  type WorkflowMap,
-} from "./include-expander";
+import { expandIncludes, INCLUDE_MAX_DEPTH, type WorkflowMap } from "./include-expander";
 import type { WorkflowDefinition, WorkflowNode } from "./schema";
 
 function def(name: string, nodes: WorkflowNode[]): WorkflowDefinition {
