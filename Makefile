@@ -1,6 +1,6 @@
 .DEFAULT_GOAL := build
 
-.PHONY: install lint format test build run release
+.PHONY: install lint format test build run release clean
 
 install: node_modules/.package-lock.json
 
@@ -18,6 +18,9 @@ test: install
 
 build: lint
 	npm run build
+
+clean:
+	rm -rf dist dist-ssr node_modules/.tmp *.tsbuildinfo
 
 run: install
 	npm run dev
