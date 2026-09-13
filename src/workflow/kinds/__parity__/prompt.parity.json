@@ -1,0 +1,20 @@
+{
+  "kind": "prompt",
+  "archonSource": "packages/workflows/src/schemas/dag-node.ts (dagNodeFlatSchema aiOnly fields, pinned to reviewed commit)",
+  "fields": [
+    { "name": "prompt", "optional": false, "type": "string" },
+    { "name": "model", "optional": true, "type": "string" },
+    { "name": "provider", "optional": true, "type": "string" },
+    { "name": "context", "optional": true, "type": "string" },
+    { "name": "output_format", "optional": true, "type": "record" },
+    { "name": "allowed_tools", "optional": true, "type": "array" },
+    { "name": "denied_tools", "optional": true, "type": "array" },
+    { "name": "mcp", "optional": true, "type": "string" },
+    { "name": "skills", "optional": true, "type": "array" },
+    { "name": "agents", "optional": true, "type": "array" },
+    { "name": "effort", "optional": true, "type": "string" },
+    { "name": "hooks", "optional": true, "type": "record" },
+    { "name": "idle_timeout", "optional": true, "type": "number" },
+    { "name": "retry", "optional": true, "type": "object" }
+  ]
+}

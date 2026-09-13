@@ -1,0 +1,10 @@
+{
+  "kind": "script",
+  "archonSource": "packages/workflows/src/schemas/dag-node.ts (scriptExecAuthoringSchema, runtime excludes 'sh' per already-merged #31)",
+  "fields": [
+    { "name": "script", "optional": false, "type": "string" },
+    { "name": "runtime", "optional": true, "type": "enum", "values": ["bun", "uv"] },
+    { "name": "deps", "optional": true, "type": "array" },
+    { "name": "timeout", "optional": true, "type": "number" }
+  ]
+}

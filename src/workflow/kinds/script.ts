@@ -2,7 +2,7 @@ import { z } from "zod";
 import type { WorkflowNodeData } from "../types";
 import type { NodeKind } from "./types";
 
-const RUNTIMES = ["sh", "bun", "uv"] as const;
+const RUNTIMES = ["bun", "uv"] as const;
 
 const schema = z.object({
   script: z.string().min(1),

@@ -63,6 +63,23 @@ describe("scriptKind.toYaml", () => {
   });
 });
 
+describe("scriptKind.schema runtime validation", () => {
+  it("rejects runtime: sh (reserved for bash nodes)", () => {
+    const result = scriptKind.schema.safeParse({ script: "x", runtime: "sh" });
+    expect(result.success).toBe(false);
+  });
+
+  it("accepts runtime: bun", () => {
+    const result = scriptKind.schema.safeParse({ script: "x", runtime: "bun" });
+    expect(result.success).toBe(true);
+  });
+
+  it("accepts runtime: uv", () => {
+    const result = scriptKind.schema.safeParse({ script: "x", runtime: "uv" });
+    expect(result.success).toBe(true);
+  });
+});
+
 describe("scriptKind registration", () => {
   it("is registered before promptKind and unknownKind", () => {
     const ids = NODE_KINDS.map((k) => k.id);
