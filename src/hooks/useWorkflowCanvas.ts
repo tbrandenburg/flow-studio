@@ -1,10 +1,5 @@
 import { useCallback, useMemo, useRef, useState } from "react";
-import {
-  addEdge,
-  type Edge,
-  type NodeMouseHandler,
-  type OnConnect,
-} from "@xyflow/react";
+import { addEdge, type Edge, type NodeMouseHandler, type OnConnect } from "@xyflow/react";
 
 import { isDoubleClick, type ClickPoint } from "../workflow/doubleClick";
 import { useWorkflowState } from "./useWorkflowState";
